@@ -10,6 +10,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 const styles = theme => ({
     root: {
         flexGrow: 1,
+        height: '7vh'
     },
     title: {
         marginLeft: theme.spacing(5),
