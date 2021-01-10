@@ -15,6 +15,7 @@ import {
     handleModelChange
 } from './GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
+import { blueGrey, grey } from '@material-ui/core/colors';
 
 const $ = go.GraphObject.make;
 var palette;
@@ -197,6 +198,8 @@ function initDiagram() {
         )
     );
 
+    
+
     var propertyTemplate = $(
         go.Panel,
         'Horizontal',
@@ -286,11 +289,12 @@ function initDiagram() {
         $(
             go.Node,
             'Auto',
-            {
-                locationSpot: go.Spot.Center,
-                fromSpot: go.Spot.AllSides,
-                toSpot: go.Spot.AllSides
-            },
+            // {
+            //     locationSpot: go.Spot.Center,
+            //     fromSpot: go.Spot.AllSides,
+            //     toSpot: go.Spot.AllSides
+            // },
+            nodeStyle(),
             $(go.Shape, { fill: 'lightyellow' }),
             $(
                 go.Panel,
@@ -369,7 +373,7 @@ function initDiagram() {
     );
 
     // replace the default Link template in the linkTemplateMap
-    diagram.linkTemplate = $(
+    diagram.linkTemplateMap.add('', $(
         go.Link, // the whole link panel
         {
             routing: go.Link.AvoidsNodes,
@@ -413,7 +417,7 @@ function initDiagram() {
         $(
             go.Panel,
             'Auto', // the link label, normally not visible
-            { visible: false, name: 'LABEL', segmentIndex: 2, segmentFraction: 0.5 },
+            { visible: true, name: 'LABEL', segmentIndex: 2, segmentFraction: 0.5 },
             new go.Binding('visible', 'visible').makeTwoWay(),
             $(
                 go.Shape,
@@ -422,16 +426,64 @@ function initDiagram() {
             ),
             $(
                 go.TextBlock,
-                'Yes', // the label
+                '', // the label
                 {
                     textAlign: 'center',
                     font: '10pt helvetica, arial, sans-serif',
                     stroke: '#333333',
-                    editable: true
+                    editable: true,
+                    visible: false
                 },
-                new go.Binding('text').makeTwoWay()
+                new go.Binding('visible', 'text',  function(s) { if (s) return true; else return false; }).makeTwoWay()
+                , new go.Binding("text", "text")
             )
         )
+    ));
+
+    diagram.linkTemplate= $( go.Link, // the whole link panel
+      {
+          routing: go.Link.AvoidsNodes,
+          curve: go.Link.JumpOver,
+          corner: 5,
+          toShortLength: 4,
+          relinkableFrom: true,
+          relinkableTo: true,
+          reshapable: true,
+          resegmentable: true,
+          // mouse-overs subtly highlight links:
+          mouseEnter: function(e, link) {
+              link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
+          },
+          mouseLeave: function(e, link) {
+              link.findObject('HIGHLIGHT').stroke = 'transparent';
+          },
+          selectionAdorned: false
+      },
+      new go.Binding('points').makeTwoWay(),
+      
+      new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
+      $(
+        go.Shape, // the highlight shape, normally transparent
+        {
+            isPanelMain: true,
+            strokeWidth: 8,
+            stroke: 'transparent',
+            name: 'HIGHLIGHT'
+        }
+    ),
+    $(
+        go.Shape, // the link path shape
+        { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
+        new go.Binding('stroke', 'isSelected', function(sel) {
+            return sel ? 'dodgerblue' : 'gray';
+        }).ofObject(),
+        new go.Binding("fromArrow", "relationship", convertFromArrow)
+    ),
+    $(
+        go.Shape, // the arrowhead
+        { toArrow: 'standard', strokeWidth: 4, fill: '#909091', stroke: '#909091' },
+        new go.Binding("toArrow", "relationship", convertToArrow)
+    )
     );
 
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
@@ -452,44 +504,7 @@ function initPalette() {
             nodeTemplateMap: diagram.nodeTemplateMap, // share the templates used by diagram
             maxSelectionCount: 1,
             // simplify the link template, just in this Palette
-            linkTemplate: $(
-                go.Link,
-                {
-                    // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
-                    // to line up the Link in the same manner we have to pretend the Link has the same location spot
-                    locationSpot: go.Spot.Center,
-                    selectionAdornmentTemplate: $(
-                        go.Adornment,
-                        'Link',
-                        { locationSpot: go.Spot.Center },
-                        $(go.Shape, {
-                            isPanelMain: true,
-                            fill: null,
-                            stroke: 'deepskyblue',
-                            strokeWidth: 0
-                        }),
-                        $(
-                            go.Shape, // the arrowhead
-                            { toArrow: 'Standard', stroke: null }
-                        )
-                    )
-                },
-                {
-                    routing: go.Link.AvoidsNodes,
-                    curve: go.Link.JumpOver,
-                    corner: 5,
-                    toShortLength: 4
-                },
-                new go.Binding('points'),
-                $(
-                    go.Shape, // the link path shape
-                    { isPanelMain: true, strokeWidth: 2 }
-                ),
-                $(
-                    go.Shape, // the arrowhead
-                    { toArrow: 'Standard', stroke: null }
-                )
-            ),
+            linkTemplate: diagram.linkTemplate,
             model: new go.GraphLinksModel(
                 [
                     // specify the contents of the Palette
@@ -503,13 +518,32 @@ function initPalette() {
                 [
                     // the Palette also has a disconnected Link, which the user can drag-and-drop
                     {
-                        points: new go.List /*go.Point*/().addAll([
+                        points: new go.List().addAll([
                             new go.Point(0, 0),
                             new go.Point(30, 0),
                             new go.Point(30, 40),
                             new go.Point(60, 40)
                         ])
-                    }
+                    },
+                    {
+                      points: new go.List().addAll([
+                          new go.Point(0, 0),
+                          new go.Point(30, 0),
+                          new go.Point(30, 40),
+                          new go.Point(60, 40)
+                      ])
+                      , relationship: 'aggregation'
+                  }
+                    ,
+                    {
+                      points: new go.List().addAll([
+                          new go.Point(0, 0),
+                          new go.Point(30, 0),
+                          new go.Point(30, 40),
+                          new go.Point(60, 40)
+                      ])
+                      , relationship: 'generalization'
+                  }
                 ]
             ),
             allowHorizontalScroll: false,
@@ -609,7 +643,9 @@ class GoJsDemo extends Component {
                         { from: -1, to: 1, fromPort: 'B', toPort: 'T' },
                         { from: -1, to: 5, fromPort: 'B', toPort: 'T' },
                         { from: 5, to: 4, fromPort: 'B', toPort: 'T' },
-                        { from: 0, to: 4, fromPort: 'B', toPort: 'T' }
+                        { from: 0, to: 4, fromPort: 'B', toPort: 'T' },
+                        { from: 0, to: 10, fromPort: 'B', toPort: 'T', relationship: "generalization" },
+                        { from: 1, to: 10, fromPort: 'B', toPort: 'T', relationship: "aggregation" }
                     ]}
                     onModelChange={handleModelChange}
                 />
