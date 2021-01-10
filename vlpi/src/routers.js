@@ -20,11 +20,8 @@ class Routers extends Component {
                     <Route path='/' exact component={HomePage} />
                     <Route path='/task-list' exact component={TaskListPage} />
                     <Route path='/gojs-demo' exact component={GoJsDemo} />
-<<<<<<< HEAD
-=======
                     <Route path='/task-create' exact component={TaskCreatePage} />
                     <Route path='/login' exact component={SignIn} />
->>>>>>> main
                 </Switch>
             </Router>
         )
