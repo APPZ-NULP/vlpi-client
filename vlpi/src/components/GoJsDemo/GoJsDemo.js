@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import './GoJsDemo.css';
 import * as go from 'gojs';
-import { ReactDiagram, ReactPalette} from 'gojs-react';
+import { ReactDiagram, ReactPalette } from 'gojs-react';
 
 
 const $ = go.GraphObject.make;
