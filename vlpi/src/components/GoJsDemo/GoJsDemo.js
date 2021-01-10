@@ -66,6 +66,25 @@ function showLinkLabel(e) {
     if (label !== null) label.visible = (e.subject.fromNode.data.category === "Conditional");
 }
 
+function convertIsTreeLink(r) {
+    return r === "generalization";
+  }
+
+  function convertFromArrow(r) {
+    switch (r) {
+      case "generalization": return "";
+      default: return "";
+    }
+  }
+
+  function convertToArrow(r) {
+    switch (r) {
+      case "generalization": return "Triangle";
+      case "aggregation": return "StretchedDiamond";
+      default: return "";
+    }
+  }
+
 function initDiagram() {
 
     diagram =
@@ -75,13 +94,14 @@ function initDiagram() {
                 'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
                 "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
                 "LinkRelinked": showLinkLabel,
+                "draggingTool.dragsLink": true,
+            "draggingTool.isGridSnapEnabled": true,
                 model: $(go.GraphLinksModel,
                     {
                         linkKeyProperty: 'key'
                     })
             });
     diagram.scrollMode = go.Diagram.DocumentScroll;
-
 
     diagram.nodeTemplateMap.add("",  // the default category
         $(go.Node, "Table", nodeStyle(),
@@ -195,7 +215,128 @@ function initDiagram() {
             // no ports, because no links are allowed to connect with a comment
         ));
 
+        function convertVisibility(v) {
+            switch (v) {
+              case "public": return "+";
+              case "private": return "-";
+              case "protected": return "#";
+              case "package": return "~";
+              default: return v;
+            }
+          }
+    
 
+        var propertyTemplate =
+        $(go.Panel, "Horizontal",
+          // property visibility/access
+          $(go.TextBlock,
+            { isMultiline: false, editable: false, width: 12 },
+            new go.Binding("text", "visibility", convertVisibility)),
+          // property name, underlined if scope=="class" to indicate static property
+          $(go.TextBlock,
+            { isMultiline: false, editable: true },
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("isUnderline", "scope", function (s) { return s[0] === 'c' })),
+          // property type, if known
+          $(go.TextBlock, "",
+            new go.Binding("text", "type", function (t) { return (t ? ": " : ""); })),
+          $(go.TextBlock,
+            { isMultiline: false, editable: true },
+            new go.Binding("text", "type").makeTwoWay()),
+          // property default value, if any
+          $(go.TextBlock,
+            { isMultiline: false, editable: false },
+            new go.Binding("text", "default", function (s) { return s ? " = " + s : ""; }))
+        );
+
+      // the item template for methods
+      var methodTemplate =
+        $(go.Panel, "Horizontal",
+          // method visibility/access
+          $(go.TextBlock,
+            { isMultiline: false, editable: false, width: 12 },
+            new go.Binding("text", "visibility", convertVisibility)),
+          // method name, underlined if scope=="class" to indicate static method
+          $(go.TextBlock,
+            { isMultiline: false, editable: true },
+            new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("isUnderline", "scope", function (s) { return s[0] === 'c' })),
+          // method parameters
+          $(go.TextBlock, "()",
+            // this does not permit adding/editing/removing of parameters via inplace edits
+            new go.Binding("text", "parameters", function (parr) {
+              var s = "(";
+              for (var i = 0; i < parr.length; i++) {
+                var param = parr[i];
+                if (i > 0) s += ", ";
+                s += param.name + ": " + param.type;
+              }
+              return s + ")";
+            })),
+          // method return type, if any
+          $(go.TextBlock, "",
+            new go.Binding("text", "type", function (t) { return (t ? ": " : ""); })),
+          $(go.TextBlock,
+            { isMultiline: false, editable: true },
+            new go.Binding("text", "type").makeTwoWay())
+        );
+
+      // this simple template does not have any buttons to permit adding or
+      // removing properties or methods, but it could!
+      diagram.nodeTemplateMap.add("Class",
+        $(go.Node, "Auto",
+          {
+            locationSpot: go.Spot.Center,
+            fromSpot: go.Spot.AllSides,
+            toSpot: go.Spot.AllSides
+          },
+          $(go.Shape, { fill: "lightyellow" }),
+          $(go.Panel, "Table",
+            { defaultRowSeparatorStroke: "black" },
+            // header
+            $(go.TextBlock,
+              {
+                row: 0, columnSpan: 2, margin: 10, alignment: go.Spot.Center,
+                font: "bold 12pt sans-serif",
+                isMultiline: false, editable: true
+              },
+              new go.Binding("text", "name").makeTwoWay()),
+            // properties
+            $(go.TextBlock, "Properties",
+              { row: 1, font: "italic 10pt sans-serif" },
+              new go.Binding("visible", "visible", function (v) { return !v; }).ofObject("PROPERTIES")),
+            $(go.Panel, "Vertical", { name: "PROPERTIES" },
+              new go.Binding("itemArray", "properties"),
+              {
+                row: 1, margin: 3, stretch: go.GraphObject.Fill,
+                defaultAlignment: go.Spot.Left, background: "lightyellow",
+                itemTemplate: propertyTemplate
+              }
+            ),
+            $("PanelExpanderButton", "PROPERTIES",
+              { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
+              new go.Binding("visible", "properties", function (arr) { return arr.length > 0; })),
+            // methods
+            $(go.TextBlock, "Methods",
+              { row: 2, font: "italic 10pt sans-serif" },
+              new go.Binding("visible", "visible", function (v) { return !v; }).ofObject("METHODS")),
+            $(go.Panel, "Vertical", { name: "METHODS" },
+              new go.Binding("itemArray", "methods"),
+              {
+                row: 2, margin: 3, stretch: go.GraphObject.Fill,
+                defaultAlignment: go.Spot.Left, background: "lightyellow",
+                itemTemplate: methodTemplate
+              }
+            ),
+            $("PanelExpanderButton", "METHODS",
+              { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
+              new go.Binding("visible", "methods", function (arr) { return arr.length > 0; }))
+          ),
+          makePort("T", go.Spot.Top, go.Spot.Top, false, true),
+          makePort("L", go.Spot.Left, go.Spot.Left, true, true),
+          makePort("R", go.Spot.Right, go.Spot.Right, true, true),
+          makePort("B", go.Spot.Bottom, go.Spot.Bottom, true, false)
+        ));
 
     // replace the default Link template in the linkTemplateMap
     diagram.linkTemplate =
@@ -237,8 +378,6 @@ function initDiagram() {
             )
         );
 
-
-
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
     diagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
     diagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
@@ -255,13 +394,44 @@ function initPalette() {
                 "InitialAnimationStarting": animateFadeDown, // Instead, animate with this function
 
                 nodeTemplateMap: diagram.nodeTemplateMap,  // share the templates used by diagram
+                maxSelectionCount: 1,
+                linkTemplate: // simplify the link template, just in this Palette
+                  $(go.Link,
+                    { // because the GridLayout.alignment is Location and the nodes have locationSpot == Spot.Center,
+                      // to line up the Link in the same manner we have to pretend the Link has the same location spot
+                      locationSpot: go.Spot.Center,
+                      selectionAdornmentTemplate:
+                        $(go.Adornment, "Link",
+                          { locationSpot: go.Spot.Center },
+                          $(go.Shape,
+                            { isPanelMain: true, fill: null, stroke: "deepskyblue", strokeWidth: 0 }),
+                          $(go.Shape,  // the arrowhead
+                            { toArrow: "Standard", stroke: null })
+                        )
+                    },
+                    {
+                      routing: go.Link.AvoidsNodes,
+                      curve: go.Link.JumpOver,
+                      corner: 5,
+                      toShortLength: 4
+                    },
+                    new go.Binding("points"),
+                    $(go.Shape,  // the link path shape
+                      { isPanelMain: true, strokeWidth: 2 }),
+                    $(go.Shape,  // the arrowhead
+                      { toArrow: "Standard", stroke: null })
+                  ),
                 model: new go.GraphLinksModel([  // specify the contents of the Palette
                     { category: "Start", text: "Start" },
                     { text: "Step" },
                     { category: "Conditional", text: "???" },
                     { category: "End", text: "End" },
-                    { category: "Comment", text: "Comment" }
-                ]),
+                    { category: "Comment", text: "Comment" },
+                    { category: "Class", text: "Class", name: "ClassName" }
+                ], [
+                    // the Palette also has a disconnected Link, which the user can drag-and-drop
+                    { points: new go.List(/*go.Point*/).addAll([new go.Point(0, 0), new go.Point(30, 0), new go.Point(30, 40), new go.Point(60, 40)]) }
+                  ]),
                 allowHorizontalScroll: false,
                 allowVerticalScroll: false
             });
@@ -313,7 +483,21 @@ class GoJsDemo extends Component {
                         { "key": 6, "loc": "175 450", "text": "Sprinkle nuts on top" },
                         { "key": 7, "loc": "175 515", "text": "Bake for 25 minutes and let cool" },
                         { "key": 8, "loc": "175 585", "text": "Cut into rectangular grid" },
-                        { "key": -2, "category": "End", "loc": "175 660", "text": "Enjoy!" }
+                        { "key": -2, "category": "End", "loc": "175 660", "text": "Enjoy!" },
+                        {
+                            "key": 10,
+                            "category": "Class",
+                            "name": "BankAccount",
+                            "loc" : "10 10",
+                            "properties": [
+                              { "name": "owner", "type": "String", "visibility": "public" },
+                              { "name": "balance", "type": "Currency", "visibility": "public", "default": "0" }
+                            ],
+                            "methods": [
+                              { "name": "deposit", "parameters": [{ "name": "amount", "type": "Currency" }], "visibility": "public" },
+                              { "name": "withdraw", "parameters": [{ "name": "amount", "type": "Currency" }], "visibility": "public" }
+                            ]
+                          }
                     ]}
                     linkDataArray={[
                         { "from": 1, "to": 2, "fromPort": "B", "toPort": "T" },
