@@ -4,6 +4,7 @@ import {Route, Switch} from 'react-router';
 
 import HomePage from "./components/HomePage/HomePage";
 import TaskListPage from "./components/TaskListPage/TaskListPage";
+import GoJsDemo from "./components/GoJsDemo/GoJsDemo";
 import Header from "./components/Header/Header";
 
 class Routers extends Component {
@@ -17,6 +18,10 @@ class Routers extends Component {
                            component={HomePage}
                     />
                     <Route path='/task-list' exact component={TaskListPage} />
+<<<<<<< HEAD
+=======
+                    <Route path='/gojs-demo' exact component={GoJsDemo} />
+>>>>>>> main
                 </Switch>
             </BrowserRouter>
         )
