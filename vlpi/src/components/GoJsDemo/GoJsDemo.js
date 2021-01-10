@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Routers from './routers'
 import {createMuiTheme, ThemeProvider} from "@material-ui/core/styles";
 import './GoJsDemo.css';
 import * as go from 'gojs';
