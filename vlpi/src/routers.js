@@ -8,6 +8,7 @@ import GoJsDemo from "./components/GoJsDemo/GoJsDemo";
 import Header from "./components/Header/Header";
 import history from "./history"
 import TaskCreatePage from "./components/TaskCreatePage/TaskCreatePage"
+import SignIn from './components/LoginPage/LoginPage';
 
 class Routers extends Component {
 
@@ -20,6 +21,7 @@ class Routers extends Component {
                     <Route path='/task-list' exact component={TaskListPage} />
                     <Route path='/gojs-demo' exact component={GoJsDemo} />
                     <Route path='/task-create' exact component={TaskCreatePage} />
+                    <Route path='/login' exact component={SignIn} />
                 </Switch>
             </Router>
         )
