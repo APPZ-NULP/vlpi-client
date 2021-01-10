@@ -24,8 +24,24 @@ class TaskListPage extends Component {
 		formattedRows: []
     }
 
+    handleCreateTaskVisible = () => {
+        let user = JSON.parse(localStorage.getItem('user'));
+        
+        if (user.type === "ADMIN") {
+            return (
+                <Button variant="contained" color='primary' onClick={() => history.push('/task-create/')}>Create Task</Button>
+            )
+        }
+        else {
+            return (
+                <div></div>
+            )
+        }
+    }
+
     componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/api/tasks/`, {
+        let user = JSON.parse(localStorage.getItem('user'));
+        axios.get(`http://127.0.0.1:8000/api/tasks/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
@@ -82,7 +98,7 @@ class TaskListPage extends Component {
                                     {field: 'type', headerName: 'Type', flex: 2},
                                     {field: 'task', flex: 1, sortable: false, filterable: false,
                                         renderHeader: (params) => (
-                                            <Button variant="contained" color='primary' onClick={() => history.push('/task-create/')}>Create Task</Button>
+                                            this.handleCreateTaskVisible()
                                         )}]}
                                 rows={this.state.formattedRows}/>
                 </div>
