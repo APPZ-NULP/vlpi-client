@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import {DataGrid, RowsProp, ColDef} from '@material-ui/data-grid';
 import DifficultCell from "./DifficultyCell";
 import axios from "axios";
+import { Button } from '@material-ui/core';
+import history from "../../history"
 
 const taskDifficulty = {
 	EASY: "Easy",
@@ -77,7 +79,11 @@ class TaskListPage extends Component {
                                         renderCell: (params) => (
                                             <DifficultCell difficulty={params.value}/>
                                         )},
-                                    {field: 'type', headerName: 'Type', flex: 2}]}
+                                    {field: 'type', headerName: 'Type', flex: 2},
+                                    {field: 'task', flex: 1, sortable: false, filterable: false,
+                                        renderHeader: (params) => (
+                                            <Button variant="contained" color='primary' onClick={() => history.push('/task-create/')}>Create Task</Button>
+                                        )}]}
                                 rows={this.state.formattedRows}/>
                 </div>
             </div>
