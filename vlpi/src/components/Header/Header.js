@@ -30,9 +30,6 @@ const styles = theme => ({
     accountIcon: {
         padding: 3
     },
-    menuButton: {
-        marginRight: theme.spacing(2),
-    },
 })
 
 class Header extends Component {
@@ -116,7 +113,6 @@ class Header extends Component {
 
     render() {
         const {classes} = this.props
-        console.log(this.state)
 
         return (
             <div className={classes.root}>
