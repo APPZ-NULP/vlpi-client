@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import {DataGrid, RowsProp, ColDef} from '@material-ui/data-grid';
 import DifficultCell from "./DifficultyCell";
 import axios from "axios";
+import { Button } from '@material-ui/core';
+import history from "../../history"
 
 const taskDifficulty = {
 	EASY: "Easy",
@@ -19,17 +21,33 @@ class TaskListPage extends Component {
 
     state = {
         tasks: [],
-		formatedRows: []
+		formattedRows: []
     }
 
-   componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/api/tasks/`, {
+    handleCreateTaskVisible = () => {
+        let user = JSON.parse(localStorage.getItem('user'));
+        
+        if (user.type === "ADMIN") {
+            return (
+                <Button variant="contained" color='primary' onClick={() => history.push('/task-create/')}>Create Task</Button>
+            )
+        }
+        else {
+            return (
+                <div></div>
+            )
+        }
+    }
+
+    componentDidMount() {
+        let user = JSON.parse(localStorage.getItem('user'));
+        axios.get(`http://127.0.0.1:8000/api/tasks/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
                 const tasks = res.data;
 				
-				let formatedRows = []
+				let formattedRows = []
 				for (var task of tasks) {
 					let taskProgress = NaN
 					
@@ -47,7 +65,7 @@ class TaskListPage extends Component {
 						}
 					}
 					
-					formatedRows.push({
+					formattedRows.push({
 						id: task.pk,
 						title: task.title,
 						progress: taskProgress,
@@ -55,11 +73,10 @@ class TaskListPage extends Component {
 						type: taskType[task.type]
 					})
 				} 
-                this.setState({tasks: tasks, formatedRows: formatedRows})
+                this.setState({tasks: tasks, formattedRows: formattedRows})
 				
             })
     };
-	
 
     render() {
         console.log(this.state)
@@ -68,17 +85,22 @@ class TaskListPage extends Component {
                 display: 'flex', height: '93vh'
             }}>
                 <div style={{flexGrow: 1}}>
-                    <DataGrid showToolbar density="standard" autoPageSize={true}
-                              columns={
-                                  [
-                                      {field: 'title', headerName: 'Title', flex: 4,},
-                                      {field: 'progress', headerName: 'Progress', flex: 2,},
-                                      {field: 'difficulty', headerName: 'Difficulty', flex: 2,
-                                         renderCell: (params) => (
-                                               <DifficultCell difficulty={params.value}/>
-                                               )},
-                                      {field: 'type', headerName: 'Type', flex: 2}]}
-                              rows={this.state.formatedRows}/>
+                    <DataGrid   showToolbar 
+                                density="standard" 
+                                autoPageSize={true}
+                                columns={[
+                                    {field: 'title', headerName: 'Title', flex: 4,},
+                                    {field: 'progress', headerName: 'Progress', flex: 2,},
+                                    {field: 'difficulty', headerName: 'Difficulty', flex: 2,
+                                        renderCell: (params) => (
+                                            <DifficultCell difficulty={params.value}/>
+                                        )},
+                                    {field: 'type', headerName: 'Type', flex: 2},
+                                    {field: 'task', flex: 1, sortable: false, filterable: false,
+                                        renderHeader: (params) => (
+                                            this.handleCreateTaskVisible()
+                                        )}]}
+                                rows={this.state.formattedRows}/>
                 </div>
             </div>
         )
