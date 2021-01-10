@@ -46,6 +46,7 @@ class TaskListPage extends Component {
         })
             .then(res => {
                 const tasks = res.data;
+                let user = JSON.parse(localStorage.getItem('user'));
 				
 				let formattedRows = []
 				for (var task of tasks) {
@@ -55,13 +56,17 @@ class TaskListPage extends Component {
 						taskProgress = "To Do"
 					}
 					else {
-						taskProgress = "In Progress"
-						
+                        taskProgress = "To Do"
 						for (var userProgress of task.users_progress) {
-							if (userProgress.is_completed) {
-								taskProgress = "Done"
-								break;
-							}
+                            if (userProgress.user === user.pk)
+                            {
+                                taskProgress = "In Progress"
+                                if (userProgress.is_completed) {
+                                    taskProgress = "Done"
+                                    break;
+                                }
+                            }
+							
 						}
 					}
 					
@@ -79,7 +84,6 @@ class TaskListPage extends Component {
     };
 
     render() {
-        console.log(this.state)
         return (
             <div style={{
                 display: 'flex', height: '93vh'
