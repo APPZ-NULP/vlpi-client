@@ -40,7 +40,8 @@ class TaskListPage extends Component {
     }
 
     componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/api/tasks/`, {
+        let user = JSON.parse(localStorage.getItem('user'));
+        axios.get(`http://127.0.0.1:8000/api/tasks/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
