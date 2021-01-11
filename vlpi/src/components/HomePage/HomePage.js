@@ -14,7 +14,8 @@ class HomePage extends Component {
     }
 
     componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/api/modules/`, {
+        let user = JSON.parse(localStorage.getItem('user'));
+        axios.get(`http://127.0.0.1:8000/api/modules/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
