@@ -1,0 +1,19 @@
+.canvas {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.completionPalette {
+    width: 20vw;
+    height: 90vh;
+    position: relative;
+    border: solid 1px black;
+    background-color: #282c34;
+}
+
+.completionDiagram {
+    width: 80vw;
+    height: 90vh;
+    border: solid 1px black;
+    background-color: #282c34;
+}
