@@ -599,7 +599,8 @@ class TaskCompletePage extends Component {
             description: undefined,
             difficulty: undefined,
             type: undefined,
-            max_mark: undefined
+            max_mark: undefined,
+            users_progress: undefined
         },
         module: {
             pk: undefined,
@@ -609,7 +610,12 @@ class TaskCompletePage extends Component {
             nodes: undefined,
             links: undefined
         },
-        diagram: undefined
+        diagram: undefined,
+        user_result: {
+            pk: undefined,
+            nodes: undefined,
+            links: undefined
+        }
         // title: 
         // modules: [],
         // formattedModules: []
@@ -617,8 +623,9 @@ class TaskCompletePage extends Component {
 
     componentDidMount() {
         const id = this.props.match.params.id;
+        let user = JSON.parse(localStorage.getItem('user'));
 
-        axios.get(`http://127.0.0.1:8000/api/tasks/${id}/`, {
+        axios.get(`http://127.0.0.1:8000/api/tasks/${id}/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
@@ -631,6 +638,36 @@ class TaskCompletePage extends Component {
                     }
                 );
             })
+    }
+
+    handleProgress() {
+        if (!this.state.task.users_progress.length) {
+            let user = JSON.parse(localStorage.getItem('user'));
+
+            axios.post(
+                "http://127.0.0.1:8000/api/tasks_progresses/",
+                {
+                    user: user.pk,
+                    task: this.state.task.pk,
+                    nodes: this.state.etalon.nodes,
+                    links: []
+                }
+            ).then(res => {
+                console.log(res);
+                let user_result = res.data
+                this.setState({user_result});
+            })
+        }
+        else {
+            const progressPk = this.state.task.users_progress[0].pk;
+            axios.get(
+                `http://127.0.0.1:8000/api/tasks_progresses/${progressPk}`, {
+            }).then(res => {
+                console.log(res);
+                let user_result = res.data
+                this.setState({user_result});
+            })
+        }
     }
 
     getModule(moduleId) {
@@ -649,11 +686,31 @@ class TaskCompletePage extends Component {
             .then(res => {
                 // console.log(res);
                 const etalon = res.data;
-                this.setState({ etalon });
+                this.setState({ etalon }, 
+                    () => this.handleProgress()
+                );
             })
     }
 
     handleSaveClick = () => {
+        const diagramJsonData = diagram.model.toJson();
+        const diagramJson = JSON.parse(diagramJsonData);
+
+        let user = JSON.parse(localStorage.getItem('user'));
+
+        axios.put(
+            `http://127.0.0.1:8000/api/tasks_progresses/${this.state.user_result.pk}/`,
+            {
+                user: user.pk,
+                task: this.state.task.pk,
+                nodes: diagramJson.nodeDataArray,
+                links: diagramJson.linkDataArray
+            }
+        ).then(res => {
+            console.log(res);
+            history.push("/task-list");
+        })
+
         console.log("Save");
     }
 
@@ -684,6 +741,7 @@ class TaskCompletePage extends Component {
         console.log(this.state)
         if (diagram) {
             // this.setState({ diagram });
+            //!!!!!!!!!! 
             console.log();
             console.log(diagram);
             console.log(diagram.model.toJson());
@@ -716,7 +774,7 @@ class TaskCompletePage extends Component {
                     nodeDataArray={ 
                     // [
                         // []
-                        this.state.etalon.nodes
+                        this.state.user_result.nodes
                     //     {
                     //         category: 'Comment',
                     //         loc: '360 -10',
@@ -738,9 +796,7 @@ class TaskCompletePage extends Component {
                     // ]
                     }
                     linkDataArray={
-                        [
-
-                        ]
+                        this.state.user_result.links
                         // this.state.etalon.links
                         // [
                         // { from: 1, to: 2, fromPort: 'B', toPort: 'T' },
