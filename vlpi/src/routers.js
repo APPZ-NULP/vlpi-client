@@ -10,6 +10,7 @@ import history from "./history"
 import TaskCreatePage from "./components/TaskCreatePage/TaskCreatePage"
 import SignIn from './components/LoginPage/LoginPage';
 import TaskStatistics from './components/TaskStatistics/TaskStatistics';
+import UserProfilePage from './components/UserProfilePage/UserProfilePage';
 
 class Routers extends Component {
 
@@ -24,6 +25,7 @@ class Routers extends Component {
                     <Route path='/task-create' exact component={TaskCreatePage} />
                     <Route path='/login' exact component={SignIn} />
                     <Route path='/task/:id/statistics' exact component={TaskStatistics}/>
+                    <Route path='/profile' exact component={UserProfilePage}/>
                 </Switch>
             </Router>
         )
