@@ -48,28 +48,32 @@ class TaskListPage extends Component {
                 const tasks = res.data;
                 let user = JSON.parse(localStorage.getItem('user'));
 				
-				let formattedRows = []
+                let formattedRows = []
 				for (var task of tasks) {
-					let taskProgress = NaN
-					
-					if (task.users_progress.length === 0) {
-						taskProgress = "To Do"
-					}
-					else {
-                        taskProgress = "To Do"
-						for (var userProgress of task.users_progress) {
-                            if (userProgress.user === user.pk)
-                            {
-                                taskProgress = "In Progress"
-                                if (userProgress.is_completed) {
-                                    taskProgress = "Done"
-                                    break;
+                    let taskProgress = NaN
+                    
+                    if (user.type === "ADMIN") {
+                        taskProgress = "Done"
+                    }
+                    else {
+                        if (task.users_progress.length === 0) {
+                            taskProgress = "To Do"
+                        }
+                        else {
+                            taskProgress = "To Do"
+                            for (var userProgress of task.users_progress) {
+                                if (userProgress.user === user.pk)
+                                {
+                                    taskProgress = "In Progress"
+                                    if (userProgress.is_completed) {
+                                        taskProgress = "Done"
+                                        break;
+                                    }
                                 }
+                                
                             }
-							
-						}
-					}
-					
+                        }
+                    }
 					formattedRows.push({
 						id: task.pk,
 						title: task.title,
