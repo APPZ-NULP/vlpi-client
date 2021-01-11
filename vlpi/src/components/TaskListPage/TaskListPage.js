@@ -13,7 +13,15 @@ const taskDifficulty = {
 
 const taskType = {
 	CLASS: "Class",
-	USE_CASE: "Use Case",
+    USE_CASE: "Use Case",
+    SEQUENCE: "Sequence",
+    COMMUNICATION: "Communication",
+    ACTIVITY: "Activity",
+    OBJECT: "Object",
+    PACKAGE: "Package",
+    INTERNAL_STRUCTURE: "Internal Structure",
+    COMPONENT: "Component",
+    DEPLOYMENT: "Deployment"
 }
 
 
