@@ -13,7 +13,7 @@ const ResponsiveContainer = Recharts.ResponsiveContainer;
 class Chart extends Component {
     render() {
         return (
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={340}>
             <BarChart
             data={this.props.data}
             margin={{

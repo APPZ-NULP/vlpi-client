@@ -6,6 +6,7 @@ import TextField from "@material-ui/core/TextField";
 import axios from "axios";
 import Button from "@material-ui/core/Button";
 import Chart from "./Charts";
+import history from "../../history"
 
 const styles = (theme) => ({
     root: {
@@ -104,18 +105,26 @@ class UserProfilePage extends Component {
             for (var task of tasks) {
             let taskProgress = NaN;
 
-            if (task.users_progress.length === 0) {
-                taskProgress = "To Do";
-            } else {
-                taskProgress = "To Do";
-                for (var userProgress of task.users_progress) {
-                if (userProgress.user === user.pk) {
-                    taskProgress = "In Progress";
-                    if (userProgress.is_completed) {
-                    taskProgress = "Done";
-                    break;
-                    }
+            if (user.type === "ADMIN") {
+                taskProgress = "Done"
+            }
+            else {
+                if (task.users_progress.length === 0) {
+                    taskProgress = "To Do"
                 }
+                else {
+                    taskProgress = "To Do"
+                    for (var userProgress of task.users_progress) {
+                        if (userProgress.user === user.pk)
+                        {
+                            taskProgress = "In Progress"
+                            if (userProgress.is_completed) {
+                                taskProgress = "Done"
+                                break;
+                            }
+                        }
+                        
+                    }
                 }
             }
 
@@ -152,6 +161,28 @@ class UserProfilePage extends Component {
     handleLogout = () => {
         localStorage.removeItem("user");
         document.location.href = "/login";
+    };
+
+    handleAdmin = () => {
+        let user = JSON.parse(localStorage.getItem("user"));
+
+        if (user.type === "ADMIN") {
+            return (
+                <Button
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    onClick={this.handleSignUp}
+                    style={{marginRight: "1.2rem"}}
+                >
+                    Create User
+                </Button>
+            )
+        }
+    }
+
+    handleSignUp = () => {
+        history.push("/sign-up")
     };
 
     render() {
@@ -231,8 +262,9 @@ class UserProfilePage extends Component {
 
             <Chart data={this.state.data} />
 
-            <div style={{ width: "100%", display: "flex" }}>
+            <div style={{ width: "100%", display: "flex", marginTop: "1.2rem"}}>
                 <div style={{ flexGrow: 1 }}></div>
+                {this.handleAdmin()}
                 <Button
                 size="large"
                 variant="contained"
