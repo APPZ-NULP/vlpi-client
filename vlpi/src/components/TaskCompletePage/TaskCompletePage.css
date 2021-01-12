@@ -17,3 +17,14 @@
     border: solid 1px black;
     background-color: #282c34;
 }
+
+.banner {
+    width: 100%;
+    height: 5vh;
+    background-color: #26be45;
+    text-align: center;
+    font-size: 2rem;
+    position: relative;
+    top: 8vh;
+    position: absolute;
+}

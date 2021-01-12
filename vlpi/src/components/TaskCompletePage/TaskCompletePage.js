@@ -4,7 +4,6 @@ import axios from "axios";
 import { Button } from '@material-ui/core';
 import history from "../../history"
 
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import * as go from 'gojs';
 import {
     makePort,
@@ -19,12 +18,6 @@ import {
     handleModelChange
 } from '../GoJsDemo/GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
-import { blueGrey, grey } from '@material-ui/core/colors';
-
-
-// Я можу якось дістати які компоненти, зв'язки на поточній канві ?
-
-
 
 
 
@@ -171,7 +164,7 @@ function initDiagram() {
         )
     );
 
-    go.Shape.defineFigureGenerator('File', function(shape, w, h) {
+    go.Shape.defineFigureGenerator('File', function (shape, w, h) {
         var geo = new go.Geometry();
         var fig = new go.PathFigure(0, 0, true); // starting point
         geo.add(fig);
@@ -215,7 +208,7 @@ function initDiagram() {
         )
     );
 
-    
+
 
     var propertyTemplate = $(
         go.Panel,
@@ -231,7 +224,7 @@ function initDiagram() {
             go.TextBlock,
             { isMultiline: false, editable: true },
             new go.Binding('text', 'name').makeTwoWay(),
-            new go.Binding('isUnderline', 'scope', function(s) {
+            new go.Binding('isUnderline', 'scope', function (s) {
                 return s[0] === 'c';
             })
         ),
@@ -239,7 +232,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             '',
-            new go.Binding('text', 'type', function(t) {
+            new go.Binding('text', 'type', function (t) {
                 return t ? ': ' : '';
             })
         ),
@@ -248,7 +241,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             { isMultiline: false, editable: false },
-            new go.Binding('text', 'default', function(s) {
+            new go.Binding('text', 'default', function (s) {
                 return s ? ' = ' + s : '';
             })
         )
@@ -269,7 +262,7 @@ function initDiagram() {
             go.TextBlock,
             { isMultiline: false, editable: true },
             new go.Binding('text', 'name').makeTwoWay(),
-            new go.Binding('isUnderline', 'scope', function(s) {
+            new go.Binding('isUnderline', 'scope', function (s) {
                 return s[0] === 'c';
             })
         ),
@@ -278,7 +271,7 @@ function initDiagram() {
             go.TextBlock,
             '()',
             // this does not permit adding/editing/removing of parameters via inplace edits
-            new go.Binding('text', 'parameters', function(parr) {
+            new go.Binding('text', 'parameters', function (parr) {
                 var s = '(';
                 for (var i = 0; i < parr.length; i++) {
                     var param = parr[i];
@@ -292,7 +285,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             '',
-            new go.Binding('text', 'type', function(t) {
+            new go.Binding('text', 'type', function (t) {
                 return t ? ': ' : '';
             })
         ),
@@ -336,7 +329,7 @@ function initDiagram() {
                     go.TextBlock,
                     'Properties',
                     { row: 1, font: 'italic 10pt sans-serif' },
-                    new go.Binding('visible', 'visible', function(v) {
+                    new go.Binding('visible', 'visible', function (v) {
                         return !v;
                     }).ofObject('PROPERTIES')
                 ),
@@ -352,7 +345,7 @@ function initDiagram() {
                     'PanelExpanderButton',
                     'PROPERTIES',
                     { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-                    new go.Binding('visible', 'properties', function(arr) {
+                    new go.Binding('visible', 'properties', function (arr) {
                         return arr.length > 0;
                     })
                 ),
@@ -361,7 +354,7 @@ function initDiagram() {
                     go.TextBlock,
                     'Methods',
                     { row: 2, font: 'italic 10pt sans-serif' },
-                    new go.Binding('visible', 'visible', function(v) {
+                    new go.Binding('visible', 'visible', function (v) {
                         return !v;
                     }).ofObject('METHODS')
                 ),
@@ -377,7 +370,7 @@ function initDiagram() {
                     'PanelExpanderButton',
                     'METHODS',
                     { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
-                    new go.Binding('visible', 'methods', function(arr) {
+                    new go.Binding('visible', 'methods', function (arr) {
                         return arr.length > 0;
                     })
                 )
@@ -402,10 +395,10 @@ function initDiagram() {
             reshapable: true,
             resegmentable: true,
             // mouse-overs subtly highlight links:
-            mouseEnter: function(e, link) {
+            mouseEnter: function (e, link) {
                 link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
             },
-            mouseLeave: function(e, link) {
+            mouseLeave: function (e, link) {
                 link.findObject('HIGHLIGHT').stroke = 'transparent';
             },
             selectionAdorned: false
@@ -423,7 +416,7 @@ function initDiagram() {
         $(
             go.Shape, // the link path shape
             { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
-            new go.Binding('stroke', 'isSelected', function(sel) {
+            new go.Binding('stroke', 'isSelected', function (sel) {
                 return sel ? 'dodgerblue' : 'gray';
             }).ofObject()
         ),
@@ -451,56 +444,56 @@ function initDiagram() {
                     editable: true,
                     visible: false
                 },
-                new go.Binding('visible', 'text',  function(s) { if (s) return true; else return false; }).makeTwoWay()
+                new go.Binding('visible', 'text', function (s) { if (s) return true; else return false; }).makeTwoWay()
                 , new go.Binding("text", "text")
             )
         )
     ));
 
-    diagram.linkTemplate= $( go.Link, // the whole link panel
-      {
-          routing: go.Link.AvoidsNodes,
-          curve: go.Link.JumpOver,
-          corner: 5,
-          toShortLength: 4,
-          relinkableFrom: true,
-          relinkableTo: true,
-          reshapable: true,
-          resegmentable: true,
-          // mouse-overs subtly highlight links:
-          mouseEnter: function(e, link) {
-              link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
-          },
-          mouseLeave: function(e, link) {
-              link.findObject('HIGHLIGHT').stroke = 'transparent';
-          },
-          selectionAdorned: false
-      },
-      new go.Binding('points').makeTwoWay(),
-      
-      new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
-      $(
-        go.Shape, // the highlight shape, normally transparent
+    diagram.linkTemplate = $(go.Link, // the whole link panel
         {
-            isPanelMain: true,
-            strokeWidth: 8,
-            stroke: 'transparent',
-            name: 'HIGHLIGHT'
-        }
-    ),
-    $(
-        go.Shape, // the link path shape
-        { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
-        new go.Binding('stroke', 'isSelected', function(sel) {
-            return sel ? 'dodgerblue' : 'gray';
-        }).ofObject(),
-        new go.Binding("fromArrow", "relationship", convertFromArrow)
-    ),
-    $(
-        go.Shape, // the arrowhead
-        { toArrow: 'standard', strokeWidth: 4, fill: '#909091', stroke: '#909091' },
-        new go.Binding("toArrow", "relationship", convertToArrow)
-    )
+            routing: go.Link.AvoidsNodes,
+            curve: go.Link.JumpOver,
+            corner: 5,
+            toShortLength: 4,
+            relinkableFrom: true,
+            relinkableTo: true,
+            reshapable: true,
+            resegmentable: true,
+            // mouse-overs subtly highlight links:
+            mouseEnter: function (e, link) {
+                link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
+            },
+            mouseLeave: function (e, link) {
+                link.findObject('HIGHLIGHT').stroke = 'transparent';
+            },
+            selectionAdorned: false
+        },
+        new go.Binding('points').makeTwoWay(),
+
+        new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
+        $(
+            go.Shape, // the highlight shape, normally transparent
+            {
+                isPanelMain: true,
+                strokeWidth: 8,
+                stroke: 'transparent',
+                name: 'HIGHLIGHT'
+            }
+        ),
+        $(
+            go.Shape, // the link path shape
+            { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
+            new go.Binding('stroke', 'isSelected', function (sel) {
+                return sel ? 'dodgerblue' : 'gray';
+            }).ofObject(),
+            new go.Binding("fromArrow", "relationship", convertFromArrow)
+        ),
+        $(
+            go.Shape, // the arrowhead
+            { toArrow: 'standard', strokeWidth: 4, fill: '#909091', stroke: '#909091' },
+            new go.Binding("toArrow", "relationship", convertToArrow)
+        )
     );
 
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
@@ -543,24 +536,24 @@ function initPalette() {
                         ])
                     },
                     {
-                      points: new go.List().addAll([
-                          new go.Point(0, 0),
-                          new go.Point(30, 0),
-                          new go.Point(30, 40),
-                          new go.Point(60, 40)
-                      ])
-                      , relationship: 'aggregation'
-                  }
+                        points: new go.List().addAll([
+                            new go.Point(0, 0),
+                            new go.Point(30, 0),
+                            new go.Point(30, 40),
+                            new go.Point(60, 40)
+                        ])
+                        , relationship: 'aggregation'
+                    }
                     ,
                     {
-                      points: new go.List().addAll([
-                          new go.Point(0, 0),
-                          new go.Point(30, 0),
-                          new go.Point(30, 40),
-                          new go.Point(60, 40)
-                      ])
-                      , relationship: 'generalization'
-                  }
+                        points: new go.List().addAll([
+                            new go.Point(0, 0),
+                            new go.Point(30, 0),
+                            new go.Point(30, 40),
+                            new go.Point(60, 40)
+                        ])
+                        , relationship: 'generalization'
+                    }
                 ]
             ),
             allowHorizontalScroll: false,
@@ -570,13 +563,6 @@ function initPalette() {
     palette.contentAlignment = go.Spot.Center;
     return palette;
 }
-
-
-
-
-
-
-
 
 
 
@@ -614,11 +600,9 @@ class TaskCompletePage extends Component {
         user_result: {
             pk: undefined,
             nodes: undefined,
-            links: undefined
+            links: undefined,
+            is_completed: false,
         }
-        // title: 
-        // modules: [],
-        // formattedModules: []
     }
 
     componentDidMount() {
@@ -655,7 +639,7 @@ class TaskCompletePage extends Component {
             ).then(res => {
                 console.log(res);
                 let user_result = res.data
-                this.setState({user_result});
+                this.setState({ user_result });
             })
         }
         else {
@@ -665,7 +649,7 @@ class TaskCompletePage extends Component {
             }).then(res => {
                 console.log(res);
                 let user_result = res.data
-                this.setState({user_result});
+                this.setState({ user_result });
             })
         }
     }
@@ -686,10 +670,28 @@ class TaskCompletePage extends Component {
             .then(res => {
                 // console.log(res);
                 const etalon = res.data;
-                this.setState({ etalon }, 
+                this.setState({ etalon },
                     () => this.handleProgress()
                 );
             })
+    }
+
+    handleButtons = () => {
+        let result = null;
+
+        if (!this.state.user_result.is_completed) {
+            result = (
+                <div>
+                    <Button variant="contained" color='primary' onClick={this.handleSaveClick}>
+                        Save
+                    </Button>
+                    <Button variant="contained" color='primary' onClick={this.handleSaveAndSubmitClick}>
+                        Save and Submit
+                    </Button>
+                </div>
+            )
+        }
+        return result;
     }
 
     handleSaveClick = () => {
@@ -707,114 +709,89 @@ class TaskCompletePage extends Component {
                 links: diagramJson.linkDataArray
             }
         ).then(res => {
-            console.log(res);
-            history.push("/task-list");
+            // console.log(res);
+            history.push("/tasks");
         })
 
         console.log("Save");
     }
 
     handleSaveAndSubmitClick = () => {
+        const diagramJsonData = diagram.model.toJson();
+        const diagramJson = JSON.parse(diagramJsonData);
+
+        let user = JSON.parse(localStorage.getItem('user'));
+
+        axios.post(
+            `http://127.0.0.1:8000/api/tasks/${this.state.task.pk}/complete/`,
+            {
+                user_id: user.pk,
+                task_result: {
+                    nodes: diagramJson.nodeDataArray,
+                    links: diagramJson.linkDataArray
+                }
+            }
+        ).then(res => {
+            // console.log(res);
+            history.push(`/tasks/${this.state.task.pk}/statistics`);
+        })
+
         console.log("Save and Submit");
-        console.log(diagram.model.toJson());
-
-        // const isValid = this.validateResults();
-        // if (isValid) {
-        //     const results = this.getResultsToSubmit();
-        //     const token = String(this.props.match.params.token);
-
-        //     axios.post(`${API_URL}/${API_VERSION}/tokens/${token}/answers`, {
-        //         answers: results,
-        //     }, {
-        //         withCredentials: true,
-        //     }).then(res => {
-        //         this.props.history.push(`${this.props.history.location.pathname}/response`);
-        //     }).catch(error => {
-        //         console.log(error);
-        //     });
-        // }
     }
 
-    
+    addBanner = () => {
+        let result = null;
+
+        if (this.state.user_result.is_completed) {
+            result = (
+                <div className="banner">
+                    Done
+                </div>
+            )
+        }
+        return result;
+    }
 
     render() {
         console.log(this.state)
-        if (diagram) {
-            // this.setState({ diagram });
-            //!!!!!!!!!! 
+        if (diagram && this.state.user_result.is_completed) {
             console.log();
             console.log(diagram);
             console.log(diagram.model.toJson());
+
+            diagram.isReadOnly = true;
+            diagram.allowHorizontalScroll = false;
+            diagram.allowVerticalScroll = false;
         }
         return (
-            // style={{ display: 'flex', height: '93vh'}}>
             <div className="completionPage">
                 <div style={{ flexGrow: 1 }}>
-                    {this.state.task.pk}, 
-                    {this.state.task.title}, 
-                    {this.state.module.name} 
+                    {this.state.task.pk},
+                    {this.state.task.title},
+                    {this.state.module.name}
                     {/* {this.state.etalon.nodes},
                     {this.state.etalon.links} */}
                     YURA
-                    
-                    <Button variant="contained" color='primary' onClick={this.handleSaveClick}>
-                        Save
-                    </Button>
-                    <Button variant="contained" color='primary' onClick={this.handleSaveAndSubmitClick}>
-                        Save and Submit
-                    </Button>
+
+                    {this.handleButtons()}
+
                 </div>
 
+                <div className="canvas">
+                    <ReactDiagram
+                        initDiagram={initDiagram}
+                        divClassName="completionDiagram"
+                        nodeDataArray={this.state.user_result.nodes}
+                        linkDataArray={this.state.user_result.links}
+                        onModelChange={handleModelChange}
+                    />
+                    <ReactPalette
+                        initPalette={initPalette}
+                        divClassName="completionPalette"
+                    />
+                </div>
 
-
-            <div className="canvas">
-                <ReactDiagram
-                    initDiagram={initDiagram}
-                    divClassName="completionDiagram"
-                    nodeDataArray={ 
-                    // [
-                        // []
-                        this.state.user_result.nodes
-                    //     {
-                    //         category: 'Comment',
-                    //         loc: '360 -10',
-                    //         text: 'Kookie Brittle',
-                    //         key: -13
-                    //     },
-                    //     { key: -1, category: 'Start', loc: '175 0', text: 'Start' },
-                    //     { key: 0, loc: '-5 75', text: 'Preheat oven to 375 F' },
-                    //     {
-                    //         key: 1,
-                    //         loc: '175 100',
-                    //         text: 'In a bowl, blend: 1 cup margarine, 1.5 teaspoon vanilla, 1 teaspoon salt'
-                    //     },
-                    //     {
-                    //         key: 2,
-                    //         loc: '175 200',
-                    //         text: 'Gradually beat in 1 cup sugar and 2 cups sifted flour'
-                    //     }
-                    // ]
-                    }
-                    linkDataArray={
-                        this.state.user_result.links
-                        // this.state.etalon.links
-                        // [
-                        // { from: 1, to: 2, fromPort: 'B', toPort: 'T' },
-                        // { from: 0, to: 10, fromPort: 'B', toPort: 'T', relationship: "generalization" },
-                        // { from: 1, to: 10, fromPort: 'B', toPort: 'T', relationship: "aggregation" }
-                        // ]
-                    }
-                    onModelChange={handleModelChange}
-                />
-                <ReactPalette 
-                    initPalette={initPalette}
-                    divClassName="completionPalette" 
-                />
-            </div>
-
-
-
-            
+                {this.addBanner()}
 
             </div>
         );
