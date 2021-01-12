@@ -177,20 +177,20 @@ export default function SignUp() {
             </Grid>
             <Grid item xs={12}>
             <FormControl variant="outlined" className={classes.formControl} fullWidth>
-        <InputLabel id="demo-simple-select-outlined-label">User Type</InputLabel>
-        <Select
-          labelId="demo-simple-select-outlined-label"
-          id="demo-simple-select-outlined"
-          value={userType}
-          fullWidth
-          onChange={handleChange}
-          label="User Type"
-        >
-          <MenuItem value={"ADMIN"}>Admin</MenuItem>
-          <MenuItem value={"STUDENT"}>Student</MenuItem>
+                <InputLabel id="demo-simple-select-outlined-label">User Type</InputLabel>
+                <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={userType}
+                fullWidth
+                onChange={handleChange}
+                label="User Type"
+                >
+                <MenuItem value={"ADMIN"}>Admin</MenuItem>
+                <MenuItem value={"STUDENT"}>Student</MenuItem>
 
-        </Select>
-      </FormControl>
+                </Select>
+            </FormControl>
             </Grid>
           </Grid>
           <Button
