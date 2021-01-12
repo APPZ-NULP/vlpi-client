@@ -576,25 +576,9 @@ function initPalette() {
 
 
 const styles = (theme) => ({
-    // root: {
-    //     display: "flex",
-    //     flexWrap: "wrap",
-    //     justifyContent: "center",
-    //     alignContent: "center",
-    //     "& > *": {
-    //     margin: theme.spacing(4),
-    //     width: "50vw",
-    //     },
-    // },
-
-    formControl: {
-        // margin: theme.spacing(1),
-        // minWidth: 120,
-      },
-    
-      selectEmpty: {
+    selectEmpty: {
         marginTop: theme.spacing(2),
-      },
+    },
 
     paper: {
         padding: theme.spacing(4),
@@ -664,15 +648,15 @@ class TaskCreatePage extends Component {
         })
     };
 
-    handleDiagramChange = (data) => {
-        const diagramJsonData = diagram.model.toJson();
-        const diagramJson = JSON.parse(diagramJsonData);
+    // handleDiagramChange = (data) => {
+    //     const diagramJsonData = diagram.model.toJson();
+    //     const diagramJson = JSON.parse(diagramJsonData);
 
-        this.setState({
-            nodeDataArray: diagramJson.nodeDataArray,
-            linkDataArray: diagramJson.linkDataArray
-        })
-    }
+    //     this.setState({
+    //         nodeDataArray: diagramJson.nodeDataArray,
+    //         linkDataArray: diagramJson.linkDataArray
+    //     })
+    // }
 
     render() {
         const { classes } = this.props;
@@ -784,9 +768,9 @@ class TaskCreatePage extends Component {
             <ReactDiagram
                 initDiagram={initDiagram}
                 divClassName="diagramDiv"
-                nodeDataArray={this.state.nodeDataArray}
-                linkDataArray={this.state.linkDataArray}
-                onModelChange={this.handleDiagramChange}
+                nodeDataArray={[]}
+                linkDataArray={[]}
+                // onModelChange={this.handleDiagramChange}
             />
             <ReactPalette
                 initPalette={initPalette}
