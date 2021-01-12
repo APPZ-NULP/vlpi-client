@@ -576,16 +576,16 @@ function initPalette() {
 
 
 const styles = (theme) => ({
-    root: {
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        alignContent: "center",
-        "& > *": {
-        margin: theme.spacing(4),
-        width: "50vw",
-        },
-    },
+    // root: {
+    //     display: "flex",
+    //     flexWrap: "wrap",
+    //     justifyContent: "center",
+    //     alignContent: "center",
+    //     "& > *": {
+    //     margin: theme.spacing(4),
+    //     width: "50vw",
+    //     },
+    // },
 
     formControl: {
         // margin: theme.spacing(1),
@@ -606,6 +606,8 @@ class TaskCreatePage extends Component {
         difficulty: "",
         type: "",
         module: "",
+        nodeDataArray: [],
+        linkDataArray: []
     }
 
     handleDifficulty = (event) => {
@@ -662,11 +664,21 @@ class TaskCreatePage extends Component {
         })
     };
 
+    handleDiagramChange = (data) => {
+        const diagramJsonData = diagram.model.toJson();
+        const diagramJson = JSON.parse(diagramJsonData);
+
+        this.setState({
+            nodeDataArray: diagramJson.nodeDataArray,
+            linkDataArray: diagramJson.linkDataArray
+        })
+    }
+
     render() {
         const { classes } = this.props;
         return (
-            <div className={classes.root}>
-            <Paper className={classes.paper} elevation={3}>
+            <div id="diagramCreate">
+            <div className="taskInfoDiagram">
             <Typography
                 variant="h4"
                 gutterBottom
@@ -698,12 +710,12 @@ class TaskCreatePage extends Component {
                 type="number"
                 defaultValue={1}
                 InputProps={{ inputProps: { min: 1, max: 100 } }}
-                style={{ marginBottom: "1.2rem" }}
+                style={{ marginBottom: "1.2rem", width: "46%"}}
                 id="maxMark"
-                fullWidth
+                // fullWidth
             />
 
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"32%"}}>
+            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%", marginLeft: "8%"}}>
                 <InputLabel id="difficulty-label">Difficulty</InputLabel>
                 <Select
                 labelId="difficulty-label"
@@ -720,7 +732,7 @@ class TaskCreatePage extends Component {
                 </Select>
             </FormControl>
 
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"32%", marginLeft: "2%"}}>
+            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%"}}>
                 <InputLabel id="type-label">Type</InputLabel>
                 <Select
                 labelId="type-label"
@@ -744,7 +756,7 @@ class TaskCreatePage extends Component {
                 </Select>
             </FormControl>
 
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"32%", marginLeft: "2%"}}>
+            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%", marginLeft: "8%"}}>
                 <InputLabel id="module-label">Module</InputLabel>
                 <Select
                 labelId="module-label"
@@ -767,21 +779,19 @@ class TaskCreatePage extends Component {
                 <Button variant="contained" color="primary" onClick={this.handleCreateTask}>Create Task</Button>
             </div>
 
-            </Paper>
-
-            <div id="diagramCreate">
-                <ReactDiagram
-                    initDiagram={initDiagram}
-                    divClassName="diagramDiv"
-                    nodeDataArray={[]}
-                    linkDataArray={[]}
-                    onModelChange={handleModelChange}
-                />
-                <ReactPalette
-                    initPalette={initPalette}
-                    divClassName="paletteDiv"
-                />
             </div>
+
+            <ReactDiagram
+                initDiagram={initDiagram}
+                divClassName="diagramDiv"
+                nodeDataArray={this.state.nodeDataArray}
+                linkDataArray={this.state.linkDataArray}
+                onModelChange={this.handleDiagramChange}
+            />
+            <ReactPalette
+                initPalette={initPalette}
+                divClassName="paletteDiv"
+            />
         </div>
         )
     }
