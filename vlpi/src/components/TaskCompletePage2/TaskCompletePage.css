@@ -1,0 +1,42 @@
+#main {
+    width: 100%;
+    
+    
+    height: 93vh;
+    /* border: solid 1px black; */
+    background-color: #E5E5E5;
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+    /* padding-top: 2vh;
+    padding-bottom: 2vh; */
+}
+
+.taskInfo {
+    padding-top: 0.5%;
+    width: 15%;
+    height: 93vh;
+    padding-right: 1%;
+}
+
+.myPaletteDiv {
+    /* float: left; */
+    width: 15%;
+    
+    /* margin-left: 5%; */
+    
+
+    margin-right: 1%;
+    height: 93vh;
+    /* position: relative; */
+    border-left: solid 1px  #959faa;
+    background-color: #E5E5E5;
+}
+
+.myDiagramDiv {
+    display: inline-flex;
+    width: 68%;
+    height: 93vh;
+    border-left: solid 1px  #959faa;
+    background-color: #E5E5E5;
+}

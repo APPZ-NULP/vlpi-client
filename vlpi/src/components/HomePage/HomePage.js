@@ -26,7 +26,7 @@ class HomePage extends Component {
 
                 for (const module of modules) {
                     if (module.name === "Modelling") {
-                        link = "/task-list/"
+                        link = "/tasks/"
                     }
                     formattedModules.push({
                         id: module.pk,
