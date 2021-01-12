@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './TaskCompletePage.css';
 import axios from "axios";
-import { Button } from '@material-ui/core';
+import { Button, Typography} from '@material-ui/core';
 import history from "../../history"
 
 import * as go from 'gojs';
@@ -18,6 +18,25 @@ import {
     handleModelChange
 } from '../GoJsDemo/GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
+
+const taskDifficulty = {
+	EASY: "Easy",
+	MEDIUM: "Medium",
+	HARD: "Hard"
+}
+
+const taskType = {
+	CLASS: "Class",
+    USE_CASE: "Use Case",
+    SEQUENCE: "Sequence",
+    COMMUNICATION: "Communication",
+    ACTIVITY: "Activity",
+    OBJECT: "Object",
+    PACKAGE: "Package",
+    INTERNAL_STRUCTURE: "Internal Structure",
+    COMPONENT: "Component",
+    DEPLOYMENT: "Deployment"
+}
 
 
 
@@ -564,18 +583,6 @@ function initPalette() {
     return palette;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 class TaskCompletePage extends Component {
 
     state = {
@@ -681,7 +688,7 @@ class TaskCompletePage extends Component {
 
         if (!this.state.user_result.is_completed) {
             result = (
-                <div>
+                <div style={{width: "100%", display: "flex", justifyContent: "space-between", marginTop: "1.2rem"}}>
                     <Button variant="contained" color='primary' onClick={this.handleSaveClick}>
                         Save
                     </Button>
@@ -744,8 +751,13 @@ class TaskCompletePage extends Component {
 
         if (this.state.user_result.is_completed) {
             result = (
-                <div className="banner">
-                    Done
+                <div>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Mark: </strong> {this.state.user_result.mark}
+                    </Typography>
+                    <div className="banner">
+                        <Typography variant="h5">Done!</Typography>
+                    </div>
                 </div>
             )
         }
@@ -753,46 +765,46 @@ class TaskCompletePage extends Component {
     }
 
     render() {
-        console.log(this.state)
         if (diagram && this.state.user_result.is_completed) {
-            console.log();
-            console.log(diagram);
-            console.log(diagram.model.toJson());
-
             diagram.isReadOnly = true;
             diagram.allowHorizontalScroll = false;
             diagram.allowVerticalScroll = false;
         }
         return (
-            <div className="completionPage">
-                <div style={{ flexGrow: 1 }}>
-                    {this.state.task.pk},
-                    {this.state.task.title},
-                    {this.state.module.name}
-                    {/* {this.state.etalon.nodes},
-                    {this.state.etalon.links} */}
-                    YURA
-
+            
+            <div id="diagramMain">
+                <div className="taskInfoDiagram">
+                    <Typography variant="h5" style={{textAlign: "center"}}>{this.state.task.title}</Typography>
+                    <Typography variant="subtitle1" gutterBottom style={{marginTop: "0.5rem"}}>
+                        <strong>Description: </strong> {this.state.task.description}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Difficulty: </strong> {taskDifficulty[this.state.task.difficulty]}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Module: </strong> {this.state.module.name}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Type: </strong> {taskType[this.state.task.type]}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Max Mark: </strong> {this.state.task.max_mark}
+                    </Typography>
                     {this.handleButtons()}
-
+                    {this.addBanner()}
                 </div>
 
-                <div className="canvas">
-                    <ReactDiagram
-                        initDiagram={initDiagram}
-                        divClassName="completionDiagram"
-                        nodeDataArray={this.state.user_result.nodes}
-                        linkDataArray={this.state.user_result.links}
-                        onModelChange={handleModelChange}
-                    />
-                    <ReactPalette
-                        initPalette={initPalette}
-                        divClassName="completionPalette"
-                    />
-                </div>
-
-                {this.addBanner()}
-
+                <ReactDiagram
+                    initDiagram={initDiagram}
+                    divClassName="diagramDiv"
+                    nodeDataArray={this.state.user_result.nodes}
+                    linkDataArray={this.state.user_result.links}
+                    onModelChange={handleModelChange}
+                />
+                <ReactPalette
+                    initPalette={initPalette}
+                    divClassName="paletteDiv"
+                />
             </div>
         );
     }

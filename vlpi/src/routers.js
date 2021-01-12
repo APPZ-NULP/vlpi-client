@@ -7,11 +7,11 @@ import GoJsDemo from "./components/GoJsDemo/GoJsDemo";
 import Header from "./components/Header/Header";
 import history from "./history"
 import TaskCreatePage from "./components/TaskCreatePage/TaskCreatePage"
-import TaskCompletePage from "./components/TaskCompletePage/TaskCompletePage"
 import SignIn from './components/LoginPage/LoginPage';
 import TaskStatistics from './components/TaskStatistics/TaskStatistics';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
 import SignUp from './components/SignUp/SignUp';
+import TaskCompletePage from './components/TaskCompletePage/TaskCompletePage';
 
 class Routers extends Component {
 
