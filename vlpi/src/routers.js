@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {BrowserRouter} from 'react-router-dom';
 import {Route, Switch, Router} from 'react-router';
 
 import HomePage from "./components/HomePage/HomePage";
@@ -22,13 +21,13 @@ class Routers extends Component {
                 <Header />
                 <Switch>
                     <Route path='/' exact component={HomePage} />
-                    <Route path='/task-list' exact component={TaskListPage} />
+                    <Route path='/tasks' exact component={TaskListPage} />
                     <Route path='/gojs-demo' exact component={GoJsDemo} />
                     <Route path='/task-create' exact component={TaskCreatePage} />
                     <Route path='/tasks/:id/complete' exact component={TaskCompletePage} />
                     <Route path='/login' exact component={SignIn} />
                     <Route path='/sign-up' exact component={SignUp}/>
-                    <Route path='/task/:id/statistics' exact component={TaskStatistics}/>
+                    <Route path='/tasks/:id/statistics' exact component={TaskStatistics}/>
                     <Route path='/profile' exact component={UserProfilePage}/>
                 </Switch>
             </Router>

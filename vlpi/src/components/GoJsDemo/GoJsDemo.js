@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import './GoJsDemo.css';
 import * as go from 'gojs';
 import {
@@ -15,7 +14,6 @@ import {
     handleModelChange
 } from './GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
-import { blueGrey, grey } from '@material-ui/core/colors';
 
 const $ = go.GraphObject.make;
 var palette;

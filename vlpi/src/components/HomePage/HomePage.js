@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {DataGrid, RowsProp, ColDef} from '@material-ui/data-grid';
+import {DataGrid} from '@material-ui/data-grid';
 import './HomePage.css';
 import axios from "axios";
 import Fab from '@material-ui/core/Fab';
