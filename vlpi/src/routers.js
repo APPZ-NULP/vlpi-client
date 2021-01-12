@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {BrowserRouter} from 'react-router-dom';
 import {Route, Switch, Router} from 'react-router';
 
 import HomePage from "./components/HomePage/HomePage";
@@ -8,6 +7,7 @@ import GoJsDemo from "./components/GoJsDemo/GoJsDemo";
 import Header from "./components/Header/Header";
 import history from "./history"
 import TaskCreatePage from "./components/TaskCreatePage/TaskCreatePage"
+import TaskCompletePage from "./components/TaskCompletePage/TaskCompletePage"
 import SignIn from './components/LoginPage/LoginPage';
 import TaskStatistics from './components/TaskStatistics/TaskStatistics';
 import UserProfilePage from './components/UserProfilePage/UserProfilePage';
