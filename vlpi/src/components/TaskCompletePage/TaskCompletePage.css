@@ -10,7 +10,8 @@
     border-radius: 15px
 }
 
-#diagramMain {
+#diagramMain,
+#diagramCreate {
     width: 100%;
     height: 93vh;
     background-color: #E5E5E5;
