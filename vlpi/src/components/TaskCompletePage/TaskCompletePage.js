@@ -138,6 +138,41 @@ function initDiagram() {
     );
 
     diagram.nodeTemplateMap.add(
+        'UseCase',
+        $(
+            go.Node,
+            'Table',
+            nodeStyle(),
+            { locationObjectName: 'TB', locationSpot: go.Spot.Center },
+            $(
+                go.Panel,
+                'Auto',
+                $(
+                    go.Shape,
+                    "Ellipse",
+                    { fill: '#282c34', stroke: '#00A9C9', strokeWidth: 3.5 },
+                    new go.Binding('figure', 'figure')
+                ),
+                $(
+                    go.TextBlock,
+                    textStyle(),
+                    {
+                        margin: 8,
+                        maxSize: new go.Size(160, NaN),
+                        wrap: go.TextBlock.WrapFit,
+                        editable: true
+                    },
+                    new go.Binding('text').makeTwoWay()
+                )
+            ),
+            makePort('T', go.Spot.Top, go.Spot.Top, false, true),
+            makePort('L', go.Spot.Left, go.Spot.Left, true, true),
+            makePort('R', go.Spot.Right, go.Spot.Right, true, true),
+            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, false)
+        )
+    );
+
+    diagram.nodeTemplateMap.add(
         'Start',
         $(
             go.Node,
@@ -183,7 +218,43 @@ function initDiagram() {
         )
     );
 
-    go.Shape.defineFigureGenerator('File', function (shape, w, h) {
+    diagram.nodeTemplateMap.add(
+        'Actor',
+        $(
+            go.Node,
+            "Table",
+            nodeStyle(),
+            $(
+                go.Panel,
+                'Spot',
+                $(go.Shape, 'Actor', {
+                    desiredSize: new go.Size(80, 120),
+                    fill: '#282c34',
+                    stroke: '#DCED2E',
+                    strokeWidth: 3.5
+            }),
+                $(
+                    go.TextBlock,
+                    textStyle(),
+                    {
+                        margin: 8,
+                        maxSize: new go.Size(60, NaN),
+                        wrap: go.TextBlock.WrapFit,
+                        editable: true
+                    },
+                    new go.Binding('text').makeTwoWay()
+                )
+            ),
+            makePort('T', go.Spot.Top, go.Spot.Top, true, true),
+            makePort('L', go.Spot.Left, go.Spot.Left, true, true),
+            makePort('R', go.Spot.Right, go.Spot.Right, true, true),
+            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, true)
+        )
+    );
+
+
+
+    go.Shape.defineFigureGenerator('File', function(shape, w, h) {
         var geo = new go.Geometry();
         var fig = new go.PathFigure(0, 0, true); // starting point
         geo.add(fig);
@@ -227,7 +298,7 @@ function initDiagram() {
         )
     );
 
-
+    
 
     var propertyTemplate = $(
         go.Panel,
@@ -243,7 +314,7 @@ function initDiagram() {
             go.TextBlock,
             { isMultiline: false, editable: true },
             new go.Binding('text', 'name').makeTwoWay(),
-            new go.Binding('isUnderline', 'scope', function (s) {
+            new go.Binding('isUnderline', 'scope', function(s) {
                 return s[0] === 'c';
             })
         ),
@@ -251,7 +322,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             '',
-            new go.Binding('text', 'type', function (t) {
+            new go.Binding('text', 'type', function(t) {
                 return t ? ': ' : '';
             })
         ),
@@ -260,7 +331,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             { isMultiline: false, editable: false },
-            new go.Binding('text', 'default', function (s) {
+            new go.Binding('text', 'default', function(s) {
                 return s ? ' = ' + s : '';
             })
         )
@@ -281,7 +352,7 @@ function initDiagram() {
             go.TextBlock,
             { isMultiline: false, editable: true },
             new go.Binding('text', 'name').makeTwoWay(),
-            new go.Binding('isUnderline', 'scope', function (s) {
+            new go.Binding('isUnderline', 'scope', function(s) {
                 return s[0] === 'c';
             })
         ),
@@ -290,7 +361,7 @@ function initDiagram() {
             go.TextBlock,
             '()',
             // this does not permit adding/editing/removing of parameters via inplace edits
-            new go.Binding('text', 'parameters', function (parr) {
+            new go.Binding('text', 'parameters', function(parr) {
                 var s = '(';
                 for (var i = 0; i < parr.length; i++) {
                     var param = parr[i];
@@ -304,7 +375,7 @@ function initDiagram() {
         $(
             go.TextBlock,
             '',
-            new go.Binding('text', 'type', function (t) {
+            new go.Binding('text', 'type', function(t) {
                 return t ? ': ' : '';
             })
         ),
@@ -348,7 +419,7 @@ function initDiagram() {
                     go.TextBlock,
                     'Properties',
                     { row: 1, font: 'italic 10pt sans-serif' },
-                    new go.Binding('visible', 'visible', function (v) {
+                    new go.Binding('visible', 'visible', function(v) {
                         return !v;
                     }).ofObject('PROPERTIES')
                 ),
@@ -364,7 +435,7 @@ function initDiagram() {
                     'PanelExpanderButton',
                     'PROPERTIES',
                     { row: 1, column: 1, alignment: go.Spot.TopRight, visible: false },
-                    new go.Binding('visible', 'properties', function (arr) {
+                    new go.Binding('visible', 'properties', function(arr) {
                         return arr.length > 0;
                     })
                 ),
@@ -373,7 +444,7 @@ function initDiagram() {
                     go.TextBlock,
                     'Methods',
                     { row: 2, font: 'italic 10pt sans-serif' },
-                    new go.Binding('visible', 'visible', function (v) {
+                    new go.Binding('visible', 'visible', function(v) {
                         return !v;
                     }).ofObject('METHODS')
                 ),
@@ -389,7 +460,7 @@ function initDiagram() {
                     'PanelExpanderButton',
                     'METHODS',
                     { row: 2, column: 1, alignment: go.Spot.TopRight, visible: false },
-                    new go.Binding('visible', 'methods', function (arr) {
+                    new go.Binding('visible', 'methods', function(arr) {
                         return arr.length > 0;
                     })
                 )
@@ -414,10 +485,10 @@ function initDiagram() {
             reshapable: true,
             resegmentable: true,
             // mouse-overs subtly highlight links:
-            mouseEnter: function (e, link) {
+            mouseEnter: function(e, link) {
                 link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
             },
-            mouseLeave: function (e, link) {
+            mouseLeave: function(e, link) {
                 link.findObject('HIGHLIGHT').stroke = 'transparent';
             },
             selectionAdorned: false
@@ -435,7 +506,7 @@ function initDiagram() {
         $(
             go.Shape, // the link path shape
             { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
-            new go.Binding('stroke', 'isSelected', function (sel) {
+            new go.Binding('stroke', 'isSelected', function(sel) {
                 return sel ? 'dodgerblue' : 'gray';
             }).ofObject()
         ),
@@ -463,62 +534,71 @@ function initDiagram() {
                     editable: true,
                     visible: false
                 },
-                new go.Binding('visible', 'text', function (s) { if (s) return true; else return false; }).makeTwoWay()
+                new go.Binding('visible', 'text',  function(s) { if (s) return true; else return false; }).makeTwoWay()
                 , new go.Binding("text", "text")
             )
         )
     ));
 
-    diagram.linkTemplate = $(go.Link, // the whole link panel
+    diagram.linkTemplate= $( go.Link, // the whole link panel
+      {
+          routing: go.Link.AvoidsNodes,
+          curve: go.Link.JumpOver,
+          corner: 5,
+          toShortLength: 4,
+          relinkableFrom: true,
+          relinkableTo: true,
+          reshapable: true,
+          resegmentable: true,
+          // mouse-overs subtly highlight links:
+          mouseEnter: function(e, link) {
+              link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
+          },
+          mouseLeave: function(e, link) {
+              link.findObject('HIGHLIGHT').stroke = 'transparent';
+          },
+          selectionAdorned: false
+      },
+      new go.Binding('points').makeTwoWay(),
+      $(
+        go.Shape, // the highlight shape, normally transparent
         {
-            routing: go.Link.AvoidsNodes,
-            curve: go.Link.JumpOver,
-            corner: 5,
-            toShortLength: 4,
-            relinkableFrom: true,
-            relinkableTo: true,
-            reshapable: true,
-            resegmentable: true,
-            // mouse-overs subtly highlight links:
-            mouseEnter: function (e, link) {
-                link.findObject('HIGHLIGHT').stroke = 'rgba(30,144,255,0.2)';
-            },
-            mouseLeave: function (e, link) {
-                link.findObject('HIGHLIGHT').stroke = 'transparent';
-            },
-            selectionAdorned: false
-        },
-        new go.Binding('points').makeTwoWay(),
-
-        new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
-        $(
-            go.Shape, // the highlight shape, normally transparent
-            {
-                isPanelMain: true,
-                strokeWidth: 8,
-                stroke: 'transparent',
-                name: 'HIGHLIGHT'
-            }
-        ),
-        $(
-            go.Shape, // the link path shape
-            { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
-            new go.Binding('stroke', 'isSelected', function (sel) {
-                return sel ? 'dodgerblue' : 'gray';
-            }).ofObject(),
-            new go.Binding("fromArrow", "relationship", convertFromArrow)
-        ),
-        $(
-            go.Shape, // the arrowhead
-            { toArrow: 'standard', strokeWidth: 4, fill: '#909091', stroke: '#909091' },
-            new go.Binding("toArrow", "relationship", convertToArrow)
-        )
-    );
+            isPanelMain: true,
+            strokeWidth: 8,
+            stroke: 'transparent',
+            name: 'HIGHLIGHT'
+        }
+    ),
+    $(
+        go.Shape, // the link path shape
+        { isPanelMain: true, stroke: 'gray', strokeWidth: 2 },
+        new go.Binding('stroke', 'isSelected', function(sel) {
+            return sel ? 'dodgerblue' : 'gray';
+        }).ofObject(),
+        new go.Binding("fromArrow", "relationship", convertFromArrow)
+    ),
+    $(
+        go.Shape, // the arrowhead
+        { toArrow: 'standard', strokeWidth: 1, fill: 'transparent', stroke: '#909091', scale: 2 },
+        new go.Binding("toArrow", "relationship", convertToArrow)
+    ),
+    $(go.TextBlock,
+      {
+        textAlign: "center",
+        font: "12pt helvetica, arial, sans-serif",
+        stroke: "#fff",
+        margin: 2,
+        minSize: new go.Size(10, NaN),
+        editable: true
+      },
+      new go.Binding("text").makeTwoWay())
+    )
+    ;
 
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
     diagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
     diagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
-
+    
     return diagram;
 }
 
@@ -529,7 +609,7 @@ function initPalette() {
             // Instead of the default animation, use a custom fade-down
             'animationManager.initialAnimationStyle': go.AnimationManager.None,
             InitialAnimationStarting: animateFadeDown, // Instead, animate with this function
-
+            "layout.spacing": new go.Size(1, 1),
             nodeTemplateMap: diagram.nodeTemplateMap, // share the templates used by diagram
             maxSelectionCount: 1,
             // simplify the link template, just in this Palette
@@ -542,6 +622,8 @@ function initPalette() {
                     { category: 'Conditional', text: '???' },
                     { category: 'End', text: 'End' },
                     { category: 'Comment', text: 'Comment' },
+                    { category: 'Actor', text: 'Actor'},
+                    { category: 'UseCase', text: 'UseCase'},
                     { category: 'Class', text: 'Class', name: 'ClassName' }
                 ],
                 [
@@ -560,26 +642,30 @@ function initPalette() {
                             new go.Point(30, 0),
                             new go.Point(30, 40),
                             new go.Point(60, 40)
-                        ])
-                        , relationship: 'aggregation'
-                    }
-                    ,
+                      ])
+                      , relationship: 'aggregation'
+                    },
                     {
                         points: new go.List().addAll([
                             new go.Point(0, 0),
                             new go.Point(30, 0),
                             new go.Point(30, 40),
                             new go.Point(60, 40)
-                        ])
-                        , relationship: 'generalization'
+                      ])
+                      , relationship: 'generalization'
                     }
                 ]
             ),
+            layout: $(go.GridLayout,
+                {
+                              alignment: go.GridLayout.Location
+                 }),   
             allowHorizontalScroll: false,
             allowVerticalScroll: false
         }
     );
     palette.contentAlignment = go.Spot.Center;
+
     return palette;
 }
 
