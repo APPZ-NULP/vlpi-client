@@ -18,7 +18,6 @@ import {
 import { ReactDiagram, ReactPalette } from 'gojs-react';
 import { blueGrey, grey } from '@material-ui/core/colors';
 
-
 const $ = go.GraphObject.make;
 var palette;
 var diagram;
@@ -639,17 +638,6 @@ function initPalette() {
     );
     palette.contentAlignment = go.Spot.Center;
 
-    //palette.layout= go.Layout.;
-    return palette;
-}
-
-function printDiagram(){
-    console.log(diagram.model.toJson());
-    diagram.isReadOnly = true;
-    diagram.allowHorizontalScroll = false;
-    diagram.allowVerticalScroll = false;
-}
-
 class GoJsDemo extends Component {
     render() {
         return (
@@ -784,7 +772,6 @@ class GoJsDemo extends Component {
                     onModelChange={handleModelChange}
                 />
                 <ReactPalette initPalette={initPalette} divClassName="myPaletteDiv" />
-                <button onClick={printDiagram}>Click me</button>
             </div>
         );
     }

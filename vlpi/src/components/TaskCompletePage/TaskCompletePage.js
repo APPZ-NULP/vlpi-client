@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
-import { withStyles } from "@material-ui/core/styles";
-import Paper from "@material-ui/core/Paper";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
-import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import Button from '@material-ui/core/Button';
+import './TaskCompletePage.css';
 import axios from "axios";
+import { Button, Typography} from '@material-ui/core';
 import history from "../../history"
 
 import * as go from 'gojs';
@@ -26,7 +18,28 @@ import {
     handleModelChange
 } from '../GoJsDemo/GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
-import '../TaskCompletePage/TaskCompletePage.css';
+
+const taskDifficulty = {
+	EASY: "Easy",
+	MEDIUM: "Medium",
+	HARD: "Hard"
+}
+
+const taskType = {
+	CLASS: "Class",
+    USE_CASE: "Use Case",
+    SEQUENCE: "Sequence",
+    COMMUNICATION: "Communication",
+    ACTIVITY: "Activity",
+    OBJECT: "Object",
+    PACKAGE: "Package",
+    INTERNAL_STRUCTURE: "Internal Structure",
+    COMPONENT: "Component",
+    DEPLOYMENT: "Deployment"
+}
+
+
+
 
 
 
@@ -570,215 +583,231 @@ function initPalette() {
     return palette;
 }
 
+class TaskCompletePage extends Component {
 
-
-
-
-
-const styles = (theme) => ({
-    selectEmpty: {
-        marginTop: theme.spacing(2),
-    },
-
-    paper: {
-        padding: theme.spacing(4),
-    },
-});
-
-class TaskCreatePage extends Component {
     state = {
-        difficulty: "",
-        type: "",
-        module: "",
-        nodeDataArray: [],
-        linkDataArray: []
+        task: {
+            pk: undefined,
+            title: undefined,
+            description: undefined,
+            difficulty: undefined,
+            type: undefined,
+            max_mark: undefined,
+            users_progress: undefined
+        },
+        module: {
+            pk: undefined,
+            name: undefined
+        },
+        etalon: {
+            nodes: undefined,
+            links: undefined
+        },
+        diagram: undefined,
+        user_result: {
+            pk: undefined,
+            nodes: undefined,
+            links: undefined,
+            is_completed: false,
+        }
     }
 
-    handleDifficulty = (event) => {
-        this.setState({
-            difficulty: event.target.value
-        })
-    };
+    componentDidMount() {
+        const id = this.props.match.params.id;
+        let user = JSON.parse(localStorage.getItem('user'));
 
-    handleType = (event) => {
-        this.setState({
-            type: event.target.value
+        axios.get(`http://127.0.0.1:8000/api/tasks/${id}/?user=${user.pk}`, {
+            // withCredentials: true,
         })
-    };
+            .then(res => {
+                console.log(res);
+                const task = res.data;
+                this.setState({ task },
+                    () => {
+                        this.getModule(task.module);
+                        this.getEtalon(task.etalon);
+                    }
+                );
+            })
+    }
 
-    handleModule = (event) => {
-        this.setState({
-            module: event.target.value
+    handleProgress() {
+        if (!this.state.task.users_progress.length) {
+            let user = JSON.parse(localStorage.getItem('user'));
+
+            axios.post(
+                "http://127.0.0.1:8000/api/tasks_progresses/",
+                {
+                    user: user.pk,
+                    task: this.state.task.pk,
+                    nodes: this.state.etalon.nodes,
+                    links: []
+                }
+            ).then(res => {
+                console.log(res);
+                let user_result = res.data
+                this.setState({ user_result });
+            })
+        }
+        else {
+            const progressPk = this.state.task.users_progress[0].pk;
+            axios.get(
+                `http://127.0.0.1:8000/api/tasks_progresses/${progressPk}`, {
+            }).then(res => {
+                console.log(res);
+                let user_result = res.data
+                this.setState({ user_result });
+            })
+        }
+    }
+
+    getModule(moduleId) {
+        axios.get(`http://127.0.0.1:8000/api/modules/${moduleId}/`, {
         })
-    };
+            .then(res => {
+                // console.log(res);
+                const module = res.data;
+                this.setState({ module });
+            })
+    }
 
-    handleCreateTask = (event) => {
+    getEtalon(etalonId) {
+        axios.get(`http://127.0.0.1:8000/api/etalons/${etalonId}/`, {
+        })
+            .then(res => {
+                // console.log(res);
+                const etalon = res.data;
+                this.setState({ etalon },
+                    () => this.handleProgress()
+                );
+            })
+    }
+
+    handleButtons = () => {
+        let result = null;
+
+        if (!this.state.user_result.is_completed) {
+            result = (
+                <div style={{width: "100%", display: "flex", justifyContent: "space-between", marginTop: "1.2rem"}}>
+                    <Button variant="contained" color='primary' onClick={this.handleSaveClick}>
+                        Save
+                    </Button>
+                    <Button variant="contained" color='primary' onClick={this.handleSaveAndSubmitClick}>
+                        Save and Submit
+                    </Button>
+                </div>
+            )
+        }
+        return result;
+    }
+
+    handleSaveClick = () => {
         const diagramJsonData = diagram.model.toJson();
         const diagramJson = JSON.parse(diagramJsonData);
 
-        let title = document.getElementById("title").value
-        let description = document.getElementById("description").value
-        let maxMark = document.getElementById("maxMark").value
+        let user = JSON.parse(localStorage.getItem('user'));
 
-        axios.post(
-            "http://127.0.0.1:8000/api/etalons/",
+        axios.put(
+            `http://127.0.0.1:8000/api/tasks_progresses/${this.state.user_result.pk}/`,
             {
+                user: user.pk,
+                task: this.state.task.pk,
                 nodes: diagramJson.nodeDataArray,
                 links: diagramJson.linkDataArray
             }
         ).then(res => {
-            const etalon = res.data;
-
-            axios.post(
-                "http://localhost:8000/api/tasks/", {
-                    "title": title,
-                    "description": description,
-                    "difficulty": this.state.difficulty,
-                    "type": this.state.type,
-                    "max_mark": maxMark,
-                    "module": this.state.module,
-                    "etalon": etalon.pk,
-            }
-            ).then(response => {
-                history.push("/tasks")
-            }).catch(reason => {
-                console.log(reason)
-            })
-
+            // console.log(res);
+            history.push("/tasks");
         })
-    };
 
-    // handleDiagramChange = (data) => {
-    //     const diagramJsonData = diagram.model.toJson();
-    //     const diagramJson = JSON.parse(diagramJsonData);
+        console.log("Save");
+    }
 
-    //     this.setState({
-    //         nodeDataArray: diagramJson.nodeDataArray,
-    //         linkDataArray: diagramJson.linkDataArray
-    //     })
-    // }
+    handleSaveAndSubmitClick = () => {
+        const diagramJsonData = diagram.model.toJson();
+        const diagramJson = JSON.parse(diagramJsonData);
+
+        let user = JSON.parse(localStorage.getItem('user'));
+
+        axios.post(
+            `http://127.0.0.1:8000/api/tasks/${this.state.task.pk}/complete/`,
+            {
+                user_id: user.pk,
+                task_result: {
+                    nodes: diagramJson.nodeDataArray,
+                    links: diagramJson.linkDataArray
+                }
+            }
+        ).then(res => {
+            // console.log(res);
+            history.push(`/tasks/${this.state.task.pk}/statistics`);
+        })
+
+        console.log("Save and Submit");
+    }
+
+    addBanner = () => {
+        let result = null;
+
+        if (this.state.user_result.is_completed) {
+            result = (
+                <div>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Mark: </strong> {this.state.user_result.mark}
+                    </Typography>
+                    <div className="banner">
+                        <Typography variant="h5">Done!</Typography>
+                    </div>
+                </div>
+            )
+        }
+        return result;
+    }
 
     render() {
-        const { classes } = this.props;
+        if (diagram && this.state.user_result.is_completed) {
+            diagram.isReadOnly = true;
+            diagram.allowHorizontalScroll = false;
+            diagram.allowVerticalScroll = false;
+        }
         return (
-            <div id="diagramCreate">
-            <div className="taskInfoDiagram">
-            <Typography
-                variant="h4"
-                gutterBottom
-                style={{ textAlign: "center", marginBottom: "1.2rem" }}
-            >
-                {"Task Creation"}
-            </Typography>
-            <TextField
-                label="Title"
-                variant="outlined"
-                style={{ marginBottom: "1.2rem" }}
-                fullWidth
-                id="title"
-            />
+            
+            <div id="diagramMain">
+                <div className="taskInfoDiagram">
+                    <Typography variant="h5" style={{textAlign: "center"}}>{this.state.task.title}</Typography>
+                    <Typography variant="subtitle1" gutterBottom style={{marginTop: "0.5rem"}}>
+                        <strong>Description: </strong> {this.state.task.description}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Difficulty: </strong> {taskDifficulty[this.state.task.difficulty]}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Module: </strong> {this.state.module.name}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Type: </strong> {taskType[this.state.task.type]}
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom>
+                        <strong>Max Mark: </strong> {this.state.task.max_mark}
+                    </Typography>
+                    {this.handleButtons()}
+                    {this.addBanner()}
+                </div>
 
-            <TextField
-                label="Description"
-                variant="outlined"
-                multiline
-                rows={4}
-                style={{ marginBottom: "1.2rem" }}
-                fullWidth
-                id="description"
-            />
-
-            <TextField
-                label="Max Mark"
-                variant="outlined"
-                type="number"
-                defaultValue={1}
-                InputProps={{ inputProps: { min: 1, max: 100 } }}
-                style={{ marginBottom: "1.2rem", width: "46%"}}
-                id="maxMark"
-                // fullWidth
-            />
-
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%", marginLeft: "8%"}}>
-                <InputLabel id="difficulty-label">Difficulty</InputLabel>
-                <Select
-                labelId="difficulty-label"
-                id="difficulty"
-                value={this.state.difficulty}
-                fullWidth
-                onChange={this.handleDifficulty}
-                label="Difficulty"
-                >
-                <MenuItem value={"EASY"}>Easy</MenuItem>
-                <MenuItem value={"MEDIUM"}>Medium</MenuItem>
-                <MenuItem value={"HARD"}>Hard</MenuItem>
-
-                </Select>
-            </FormControl>
-
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%"}}>
-                <InputLabel id="type-label">Type</InputLabel>
-                <Select
-                labelId="type-label"
-                id="type"
-                value={this.state.type}
-                fullWidth
-                onChange={this.handleType}
-                label="type"
-                >
-                <MenuItem value={"USE_CASE"}>Use Case</MenuItem>
-                <MenuItem value={"SEQUENCE"}>Sequence</MenuItem>
-                <MenuItem value={"COMMUNICATION"}>Communication</MenuItem>
-                <MenuItem value={"ACTIVITY"}>Activity</MenuItem>
-                <MenuItem value={"CLASS"}>Class</MenuItem>
-                <MenuItem value={"OBJECT"}>Object</MenuItem>
-                <MenuItem value={"PACKAGE"}>Package</MenuItem>
-                <MenuItem value={"INTERNAL_STRUCTURE"}>Internal Structure</MenuItem>
-                <MenuItem value={"COMPONENT"}>Component</MenuItem>
-                <MenuItem value={"DEPLOYMENT"}>Deployment</MenuItem>
-
-                </Select>
-            </FormControl>
-
-            <FormControl variant="outlined" className={classes.formControl} style={{width:"46%", marginLeft: "8%"}}>
-                <InputLabel id="module-label">Module</InputLabel>
-                <Select
-                labelId="module-label"
-                id="module"
-                value={this.state.module}
-                fullWidth
-                onChange={this.handleModule}
-                label="module"
-                >
-                <MenuItem value={1}>Requirements</MenuItem>
-                <MenuItem value={2}>Design</MenuItem>
-                <MenuItem value={3}>Modelling</MenuItem>
-                <MenuItem value={4}>Coding</MenuItem>
-                <MenuItem value={5}>Testing</MenuItem>
-
-                </Select>
-            </FormControl>
-
-            <div style={{width: "100%", textAlign: 'center', marginTop: "1.2rem"}}>
-                <Button variant="contained" color="primary" onClick={this.handleCreateTask}>Create Task</Button>
+                <ReactDiagram
+                    initDiagram={initDiagram}
+                    divClassName="diagramDiv"
+                    nodeDataArray={this.state.user_result.nodes}
+                    linkDataArray={this.state.user_result.links}
+                    onModelChange={handleModelChange}
+                />
+                <ReactPalette
+                    initPalette={initPalette}
+                    divClassName="paletteDiv"
+                />
             </div>
-
-            </div>
-
-            <ReactDiagram
-                initDiagram={initDiagram}
-                divClassName="diagramDiv"
-                nodeDataArray={[]}
-                linkDataArray={[]}
-                // onModelChange={this.handleDiagramChange}
-            />
-            <ReactPalette
-                initPalette={initPalette}
-                divClassName="paletteDiv"
-            />
-        </div>
-        )
+        );
     }
 }
 
-export default withStyles(styles, { withTheme: true })(TaskCreatePage);
+export default TaskCompletePage;

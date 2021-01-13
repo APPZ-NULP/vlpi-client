@@ -8,7 +8,6 @@ import IconButton from '@material-ui/core/IconButton';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Button } from '@material-ui/core';
 import history from '../../history'
-import MenuIcon from '@material-ui/icons/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 
@@ -20,6 +19,7 @@ const styles = theme => ({
     title: {
         marginLeft: theme.spacing(5),
         flexGrow: 1,
+        cursor: "pointer"
     },
     accountName: {
         fontSize: 15
@@ -74,6 +74,10 @@ class Header extends Component {
         history.push("/login")
     }
 
+    handleProfile = () => {
+        history.push("/profile")
+    }
+
     handleLogin = (classes) => {
         if(!this.state.isAuth) {
             return (
@@ -102,8 +106,7 @@ class Header extends Component {
                         open={this.state.open}
                         onClose={this.handleClose}
                     >
-                        <MenuItem onClick={this.handleClose}>Profile</MenuItem>
-                        <MenuItem onClick={this.handleClose}>My account</MenuItem>
+                        <MenuItem onClick={this.handleProfile}>Profile</MenuItem>
                         <MenuItem onClick={this.handleLogout}>Logout</MenuItem>
                     </Menu>
                 </div>
@@ -118,7 +121,7 @@ class Header extends Component {
             <div className={classes.root}>
                 <AppBar position="static">
                     <Toolbar>
-                        <Typography variant="h6" className={classes.title}>
+                        <Typography variant="h6" className={classes.title} onClick={() => history.push("/")}>
                             VLPI
                         </Typography>
                         <div className={classes.accountGroup}>

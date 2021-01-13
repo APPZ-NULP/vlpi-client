@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {DataGrid, RowsProp, ColDef} from '@material-ui/data-grid';
+import {DataGrid} from '@material-ui/data-grid';
 import './HomePage.css';
 import axios from "axios";
 import Fab from '@material-ui/core/Fab';
@@ -14,7 +14,8 @@ class HomePage extends Component {
     }
 
     componentDidMount() {
-        axios.get(`http://127.0.0.1:8000/api/modules/`, {
+        let user = JSON.parse(localStorage.getItem('user'));
+        axios.get(`http://127.0.0.1:8000/api/modules/?user=${user.pk}`, {
             // withCredentials: true,
         })
             .then(res => {
@@ -25,7 +26,7 @@ class HomePage extends Component {
 
                 for (const module of modules) {
                     if (module.name === "Modelling") {
-                        link = "/task-list/"
+                        link = "/tasks/"
                     }
                     formattedModules.push({
                         id: module.pk,
