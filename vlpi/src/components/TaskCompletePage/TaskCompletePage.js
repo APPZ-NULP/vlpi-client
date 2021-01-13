@@ -836,11 +836,15 @@ class TaskCompletePage extends Component {
         let result = null;
 
         if (this.state.user_result.is_completed) {
+            const { match: { params } } = this.props;
             result = (
                 <div>
                     <Typography variant="subtitle1" gutterBottom>
                         <strong>Mark: </strong> {this.state.user_result.mark}
                     </Typography>
+                    <Button variant="contained" color='primary' style={{marginTop: "1.2rem", marginBottom: "1.2rem"}} fullWidth onClick={() => history.push(`/tasks/${params.id}/statistics`)}>
+                        View Statistics
+                    </Button>
                     <div className="banner">
                         <Typography variant="h5">Done!</Typography>
                     </div>
