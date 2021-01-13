@@ -564,7 +564,7 @@ function initDiagram() {
         editable: true
       },
       new go.Binding("text").makeTwoWay())
-  )
+    )
     ;
 
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
@@ -637,6 +637,9 @@ function initPalette() {
         }
     );
     palette.contentAlignment = go.Spot.Center;
+
+    return palette;
+}
 
 class GoJsDemo extends Component {
     render() {
