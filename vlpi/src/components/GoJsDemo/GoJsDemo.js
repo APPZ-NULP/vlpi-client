@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import './GoJsDemo.css';
 import * as go from 'gojs';
+import * as figure from './Figures'
 import {
     makePort,
     textStyle,
@@ -16,6 +17,7 @@ import {
 } from './GoJsHelpers';
 import { ReactDiagram, ReactPalette } from 'gojs-react';
 import { blueGrey, grey } from '@material-ui/core/colors';
+
 
 const $ = go.GraphObject.make;
 var palette;
@@ -109,6 +111,41 @@ function initDiagram() {
     );
 
     diagram.nodeTemplateMap.add(
+        'UseCase',
+        $(
+            go.Node,
+            'Table',
+            nodeStyle(),
+            { locationObjectName: 'TB', locationSpot: go.Spot.Center },
+            $(
+                go.Panel,
+                'Auto',
+                $(
+                    go.Shape,
+                    "Ellipse",
+                    { fill: '#282c34', stroke: '#00A9C9', strokeWidth: 3.5 },
+                    new go.Binding('figure', 'figure')
+                ),
+                $(
+                    go.TextBlock,
+                    textStyle(),
+                    {
+                        margin: 8,
+                        maxSize: new go.Size(160, NaN),
+                        wrap: go.TextBlock.WrapFit,
+                        editable: true
+                    },
+                    new go.Binding('text').makeTwoWay()
+                )
+            ),
+            makePort('T', go.Spot.Top, go.Spot.Top, false, true),
+            makePort('L', go.Spot.Left, go.Spot.Left, true, true),
+            makePort('R', go.Spot.Right, go.Spot.Right, true, true),
+            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, false)
+        )
+    );
+
+    diagram.nodeTemplateMap.add(
         'Start',
         $(
             go.Node,
@@ -153,6 +190,42 @@ function initDiagram() {
             makePort('R', go.Spot.Right, go.Spot.Right, false, true)
         )
     );
+
+    diagram.nodeTemplateMap.add(
+        'Actor',
+        $(
+            go.Node,
+            "Table",
+            nodeStyle(),
+            $(
+                go.Panel,
+                'Spot',
+                $(go.Shape, 'Actor', {
+                    desiredSize: new go.Size(80, 120),
+                    fill: '#282c34',
+                    stroke: '#DCED2E',
+                    strokeWidth: 3.5
+            }),
+                $(
+                    go.TextBlock,
+                    textStyle(),
+                    {
+                        margin: 8,
+                        maxSize: new go.Size(60, NaN),
+                        wrap: go.TextBlock.WrapFit,
+                        editable: true
+                    },
+                    new go.Binding('text').makeTwoWay()
+                )
+            ),
+            makePort('T', go.Spot.Top, go.Spot.Top, true, true),
+            makePort('L', go.Spot.Left, go.Spot.Left, true, true),
+            makePort('R', go.Spot.Right, go.Spot.Right, true, true),
+            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, true)
+        )
+    );
+
+
 
     go.Shape.defineFigureGenerator('File', function(shape, w, h) {
         var geo = new go.Geometry();
@@ -365,10 +438,10 @@ function initDiagram() {
                     })
                 )
             ),
-            makePort('T', go.Spot.Top, go.Spot.Top, false, true),
+            makePort('T', go.Spot.Top, go.Spot.Top, true, true),
             makePort('L', go.Spot.Left, go.Spot.Left, true, true),
             makePort('R', go.Spot.Right, go.Spot.Right, true, true),
-            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, false)
+            makePort('B', go.Spot.Bottom, go.Spot.Bottom, true, true)
         )
     );
 
@@ -460,8 +533,6 @@ function initDiagram() {
           selectionAdorned: false
       },
       new go.Binding('points').makeTwoWay(),
-      
-      new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
       $(
         go.Shape, // the highlight shape, normally transparent
         {
@@ -481,15 +552,26 @@ function initDiagram() {
     ),
     $(
         go.Shape, // the arrowhead
-        { toArrow: 'standard', strokeWidth: 4, fill: '#909091', stroke: '#909091' },
+        { toArrow: 'standard', strokeWidth: 1, fill: 'transparent', stroke: '#909091', scale: 2 },
         new go.Binding("toArrow", "relationship", convertToArrow)
-    )
-    );
+    ),
+    $(go.TextBlock,
+      {
+        textAlign: "center",
+        font: "12pt helvetica, arial, sans-serif",
+        stroke: "#fff",
+        margin: 2,
+        minSize: new go.Size(10, NaN),
+        editable: true
+      },
+      new go.Binding("text").makeTwoWay())
+  )
+    ;
 
     // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
     diagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
     diagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
-
+    
     return diagram;
 }
 
@@ -500,7 +582,7 @@ function initPalette() {
             // Instead of the default animation, use a custom fade-down
             'animationManager.initialAnimationStyle': go.AnimationManager.None,
             InitialAnimationStarting: animateFadeDown, // Instead, animate with this function
-
+            "layout.spacing": new go.Size(1, 1),
             nodeTemplateMap: diagram.nodeTemplateMap, // share the templates used by diagram
             maxSelectionCount: 1,
             // simplify the link template, just in this Palette
@@ -513,6 +595,8 @@ function initPalette() {
                     { category: 'Conditional', text: '???' },
                     { category: 'End', text: 'End' },
                     { category: 'Comment', text: 'Comment' },
+                    { category: 'Actor', text: 'Actor'},
+                    { category: 'UseCase', text: 'UseCase'},
                     { category: 'Class', text: 'Class', name: 'ClassName' }
                 ],
                 [
@@ -526,32 +610,44 @@ function initPalette() {
                         ])
                     },
                     {
-                      points: new go.List().addAll([
-                          new go.Point(0, 0),
-                          new go.Point(30, 0),
-                          new go.Point(30, 40),
-                          new go.Point(60, 40)
+                        points: new go.List().addAll([
+                            new go.Point(0, 0),
+                            new go.Point(30, 0),
+                            new go.Point(30, 40),
+                            new go.Point(60, 40)
                       ])
                       , relationship: 'aggregation'
-                  }
-                    ,
+                    },
                     {
-                      points: new go.List().addAll([
-                          new go.Point(0, 0),
-                          new go.Point(30, 0),
-                          new go.Point(30, 40),
-                          new go.Point(60, 40)
+                        points: new go.List().addAll([
+                            new go.Point(0, 0),
+                            new go.Point(30, 0),
+                            new go.Point(30, 40),
+                            new go.Point(60, 40)
                       ])
                       , relationship: 'generalization'
-                  }
+                    }
                 ]
             ),
+            layout: $(go.GridLayout,
+                {
+                              alignment: go.GridLayout.Location
+                 }),   
             allowHorizontalScroll: false,
             allowVerticalScroll: false
         }
     );
     palette.contentAlignment = go.Spot.Center;
+
+    //palette.layout= go.Layout.;
     return palette;
+}
+
+function printDiagram(){
+    console.log(diagram.model.toJson());
+    diagram.isReadOnly = true;
+    diagram.allowHorizontalScroll = false;
+    diagram.allowVerticalScroll = false;
 }
 
 class GoJsDemo extends Component {
@@ -562,94 +658,133 @@ class GoJsDemo extends Component {
                     initDiagram={initDiagram}
                     divClassName="myDiagramDiv"
                     nodeDataArray={[
-                        {
-                            category: 'Comment',
-                            loc: '360 -10',
-                            text: 'Kookie Brittle',
-                            key: -13
-                        },
-                        { key: -1, category: 'Start', loc: '175 0', text: 'Start' },
-                        { key: 0, loc: '-5 75', text: 'Preheat oven to 375 F' },
-                        {
+                         {
                             key: 1,
-                            loc: '175 100',
-                            text: 'In a bowl, blend: 1 cup margarine, 1.5 teaspoon vanilla, 1 teaspoon salt'
-                        },
-                        {
-                            key: 2,
-                            loc: '175 200',
-                            text: 'Gradually beat in 1 cup sugar and 2 cups sifted flour'
-                        },
-                        {
-                            key: 3,
-                            loc: '175 290',
-                            text: "Mix in 6 oz (1 cup) Nestle's Semi-Sweet Chocolate Morsels"
-                        },
-                        {
-                            key: 4,
-                            loc: '175 380',
-                            text: 'Press evenly into ungreased 15x10x1 pan'
-                        },
-                        {
-                            key: 5,
-                            loc: '355 85',
-                            text: 'Finely chop 1/2 cup of your choice of nuts'
-                        },
-                        { key: 6, loc: '175 450', text: 'Sprinkle nuts on top' },
-                        {
-                            key: 7,
-                            loc: '175 515',
-                            text: 'Bake for 25 minutes and let cool'
-                        },
-                        { key: 8, loc: '175 585', text: 'Cut into rectangular grid' },
-                        { key: -2, category: 'End', loc: '175 660', text: 'Enjoy!' },
-                        {
-                            key: 10,
                             category: 'Class',
-                            name: 'BankAccount',
+                            name: 'Animal',
                             loc: '10 10',
                             properties: [
-                                { name: 'owner', type: 'String', visibility: 'public' },
+                                { name: 'age', type: 'Int', visibility: 'private' },
                                 {
-                                    name: 'balance',
-                                    type: 'Currency',
-                                    visibility: 'public',
+                                    name: 'gender',
+                                    type: 'String',
+                                    visibility: 'private',
                                     default: '0'
                                 }
                             ],
                             methods: [
                                 {
-                                    name: 'deposit',
-                                    parameters: [ { name: 'amount', type: 'Currency' } ],
+                                    name: 'isMammal',
+                                    parameters: null,
                                     visibility: 'public'
                                 },
                                 {
-                                    name: 'withdraw',
-                                    parameters: [ { name: 'amount', type: 'Currency' } ],
+                                    name: 'mate',
+                                    parameters: null,
+                                    visibility: 'public'
+                                }
+                            ]
+                        },
+                        {
+                            key: 2,
+                            category: 'Class',
+                            name: 'Duck',
+                            loc: '10 10',
+                            properties: [
+                                {
+                                    name: 'color',
+                                    type: 'String',
+                                    visibility: 'private',
+                                    default: 'yellow'
+                                }
+                            ],
+                            methods: [
+                                {
+                                    name: 'swim',
+                                    parameters: null,
+                                    visibility: 'public'
+                                },
+                                {
+                                    name: 'quack',
+                                    parameters: null,
+                                    visibility: 'public'
+                                }
+                            ]
+                        },
+                        {
+                            key: 3,
+                            category: 'Class',
+                            name: 'Cat',
+                            loc: '100 10',
+                            properties: [
+                                {
+                                    name: 'color',
+                                    type: 'String',
+                                    visibility: 'private',
+                                    default: null
+                                },
+                                {
+                                    name: 'legs',
+                                    type: 'Int',
+                                    visibility: 'private',
+                                    default: 4
+                                }
+                            ],
+                            methods: [
+                                {
+                                    name: 'walk',
+                                    parameters: null,
+                                    visibility: 'public'
+                                },
+                                {
+                                    name: 'eat',
+                                    parameters: null,
+                                    visibility: 'public'
+                                }
+                            ]
+                        },
+                        {
+                            key: 4,
+                            category: 'Class',
+                            name: 'Zebra',
+                            loc: '100 10',
+                            properties: [
+                                {
+                                    name: 'is_wild',
+                                    type: 'String',
+                                    visibility: 'private',
+                                    default: null
+                                },
+                                {
+                                    name: 'legs',
+                                    type: 'Int',
+                                    visibility: 'private',
+                                    default: 4
+                                }
+                            ],
+                            methods: [
+                                {
+                                    name: 'run',
+                                    parameters: null,
+                                    visibility: 'public'
+                                },
+                                {
+                                    name: 'eat',
+                                    parameters: null,
                                     visibility: 'public'
                                 }
                             ]
                         }
                     ]}
                     linkDataArray={[
-                        { from: 1, to: 2, fromPort: 'B', toPort: 'T' },
-                        { from: 2, to: 3, fromPort: 'B', toPort: 'T' },
-                        { from: 3, to: 4, fromPort: 'B', toPort: 'T' },
-                        { from: 4, to: 6, fromPort: 'B', toPort: 'T' },
-                        { from: 6, to: 7, fromPort: 'B', toPort: 'T' },
-                        { from: 7, to: 8, fromPort: 'B', toPort: 'T' },
-                        { from: 8, to: -2, fromPort: 'B', toPort: 'T' },
-                        { from: -1, to: 0, fromPort: 'B', toPort: 'T' },
-                        { from: -1, to: 1, fromPort: 'B', toPort: 'T' },
-                        { from: -1, to: 5, fromPort: 'B', toPort: 'T' },
-                        { from: 5, to: 4, fromPort: 'B', toPort: 'T' },
-                        { from: 0, to: 4, fromPort: 'B', toPort: 'T' },
-                        { from: 0, to: 10, fromPort: 'B', toPort: 'T', relationship: "generalization" },
-                        { from: 1, to: 10, fromPort: 'B', toPort: 'T', relationship: "aggregation" }
+                        { from: 2, to: 1, fromPort: 'B', toPort: 'T', relationship: "generalization" },
+                        { from: 3, to: 1, fromPort: 'B', toPort: 'T', relationship: "generalization" },
+                        { from: 4, to: 1, fromPort: 'B', toPort: 'T', relationship: "generalization" }
                     ]}
                     onModelChange={handleModelChange}
                 />
                 <ReactPalette initPalette={initPalette} divClassName="myPaletteDiv" />
+                <button onClick={printDiagram}>Click me</button>
             </div>
         );
     }
